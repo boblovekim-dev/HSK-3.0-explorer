@@ -33,6 +33,7 @@ const SourceBadge: React.FC<{ source?: 'official' | 'ai' }> = ({ source }) => {
 };
 
 const renderLevelBadge = (level: string) => {
+  if (!level) return '';
   const match = level.match(/^(\d+)\s*[（(](\d+)[）)]$/);
   if (match) {
     return (
@@ -46,6 +47,7 @@ const renderLevelBadge = (level: string) => {
 };
 
 const renderHanzi = (text: string) => {
+  if (!text) return '';
   const match = text.match(/^(.+?)(\d+)$/);
   if (match) {
     return (
