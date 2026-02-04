@@ -81,7 +81,7 @@ const PlayButton: React.FC<{ text: string, className?: string, iconSize?: number
     <button
       onClick={handleClick}
       disabled={playing}
-      className={`p-1.5 rounded-full hover:bg-hsk-red/10 text-gray-400 hover:text-hsk-red transition-all ${playing ? 'animate-pulse text-hsk-red bg-hsk-red/5' : ''} ${className}`}
+      className={`p-2.5 md:p-1.5 rounded-full hover:bg-hsk-red/10 active:bg-hsk-red/20 text-gray-400 hover:text-hsk-red transition-all touch-manipulation ${playing ? 'animate-pulse text-hsk-red bg-hsk-red/5' : ''} ${className}`}
       title="Listen"
       aria-label="Play audio"
     >
@@ -680,7 +680,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
 
                 {/* Category Filter */}
                 <select
-                  className="px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-hsk-red/20 bg-white max-w-[140px] truncate"
+                  className="px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-hsk-red/20 bg-white min-w-[80px] flex-shrink-0"
                   onChange={(e) => {
                     const val = e.target.value;
                     setSelectedGrammarCat(val);
@@ -698,7 +698,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
 
                 {/* SubCategory Filter (Derived Category Name) */}
                 <select
-                  className="px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-hsk-red/20 bg-white max-w-[140px] truncate"
+                  className="px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-hsk-red/20 bg-white min-w-[80px] flex-shrink-0"
                   onChange={(e) => {
                     const val = e.target.value;
                     setSelectedGrammarSub(val);
@@ -715,7 +715,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
 
                 {/* Pattern Filter (Derived Details) */}
                 <select
-                  className="px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-hsk-red/20 bg-white max-w-[140px] truncate"
+                  className="px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-hsk-red/20 bg-white min-w-[80px] flex-shrink-0"
                   onChange={(e) => {
                     const val = e.target.value;
                     setSelectedGrammarPat(val);
@@ -839,13 +839,36 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
 
       case 'tasks':
         return (
-          <div className="flex flex-col gap-6 relative">
+          <div className="flex flex-col gap-4 md:gap-6 relative">
 
             {/* Search Bar for Tasks */}
             {/* Search Bar Removed for Tasks */}
 
+            {/* Mobile Horizontal Task Navigator */}
+            <div className="lg:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
+              <div className="flex gap-2 pb-2">
+                {(displayedItems as TaskItem[]).map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => scrollToTask(idx)}
+                    className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-all shrink-0 ${activeTaskId === `task-${idx}`
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                  >
+                    {level === 'all' && item.level && (
+                      <span className={`inline-flex items-center justify-center h-4 ${item.level.length > 2 ? 'px-1 min-w-[1rem]' : 'w-4'} bg-hsk-red text-white text-[8px] font-bold rounded-full whitespace-nowrap`}>
+                        {renderLevelBadge(item.level)}
+                      </span>
+                    )}
+                    {item.category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="flex gap-6 items-start">
-              {/* Sidebar TOC */}
+              {/* Sidebar TOC - Desktop only */}
               <div className="hidden lg:block w-64 sticky top-6 max-h-[calc(100vh-4rem)] overflow-y-auto bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <h3 className="font-bold mb-3 px-2 text-gray-800 text-sm uppercase tracking-wider">{t('directory')}</h3>
                 <div className="space-y-1">
