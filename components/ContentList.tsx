@@ -323,9 +323,8 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
 
         return (
           <div className="space-y-4">
-            {/* Filter/Search Bar */}
-            {/* Filter/Search Bar */}
-            <div className="flex justify-end mb-2">
+            {/* Filter/Search Bar - Hidden on mobile to reduce clutter */}
+            <div className="justify-end mb-2 hidden md:flex">
               <label className="relative block w-full max-w-sm">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
                   <Search size={16} />
@@ -348,7 +347,35 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
               </label>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            {/* Mobile Card Layout */}
+            <div className="md:hidden space-y-3">
+              {(displayedItems as VocabItem[]).map((item, idx) => (
+                <div key={idx} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      {level === 'all' && item.level && (
+                        <span className={`inline-flex items-center justify-center h-6 ${item.level.length > 2 ? 'px-1.5 min-w-[1.5rem]' : 'w-6'} bg-hsk-red text-white text-[10px] font-bold rounded-full whitespace-nowrap`}>
+                          {renderLevelBadge(item.level)}
+                        </span>
+                      )}
+                      <div>
+                        <div className="text-xl font-serif text-ink font-medium">{renderHanzi(item.hanzi)}</div>
+                        <div className="text-sm text-gray-500 font-mono">{item.pinyin}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium">
+                        {item.partOfSpeech}
+                      </span>
+                      <PlayButton text={item.hanzi} iconSize={16} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table Layout */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hidden md:block">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>

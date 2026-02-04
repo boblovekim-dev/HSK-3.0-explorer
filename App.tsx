@@ -309,9 +309,9 @@ const App: React.FC = () => {
           <main className="flex-1 overflow-y-auto w-full relative">
             <div className="p-4 md:p-8 max-w-6xl mx-auto">
 
-              {/* Header (Only if not searching) */}
+              {/* Header (Only if not searching) - Hidden on mobile */}
               {!isSearching && (
-                <div className="mb-8 text-center md:text-left flex flex-col md:flex-row justify-between items-end">
+                <div className="mb-4 md:mb-8 text-center md:text-left flex-col md:flex-row justify-between items-end hidden md:flex">
                   <div>
                     <h2 className="text-3xl font-bold text-ink mb-2 font-serif">
                       {currentLevel === 'all' ? t('allLevels') : `HSK ${t('level')} ${currentLevel}`}
