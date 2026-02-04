@@ -217,8 +217,8 @@ const App: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
 
-        {/* Top Navbar */}
-        <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0 z-20 gap-4">
+        {/* Top Navbar - Hidden on mobile for home view */}
+        <header className={`bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0 z-20 gap-4 ${view === 'home' ? 'hidden md:flex' : ''}`}>
           <div className="flex items-center gap-4 flex-1">
             {view === 'explorer' && (
               <button

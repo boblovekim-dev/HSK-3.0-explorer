@@ -959,7 +959,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
 
                 {/* Primary Topic Filter */}
                 <select
-                  className="px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-hsk-red/20 bg-white max-w-[140px] truncate capitalize"
+                  className="px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-hsk-red/20 bg-white min-w-[80px] flex-shrink-0 capitalize"
                   onChange={(e) => {
                     setSelectedTopicPrim(e.target.value);
                     setSelectedTopicSec(''); // Reset secondary
@@ -975,7 +975,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
 
                 {/* Secondary Topic Filter */}
                 <select
-                  className="px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-hsk-red/20 bg-white max-w-[140px] truncate capitalize"
+                  className="px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-hsk-red/20 bg-white min-w-[80px] flex-shrink-0 capitalize"
                   onChange={(e) => {
                     setSelectedTopicSec(e.target.value);
                     setCurrentPage(1);
