@@ -69,6 +69,14 @@ const grammarSchema = {
     },
 };
 
+const getLevelValue = (levelStr?: string): number => {
+    if (!levelStr) return 99;
+    if (levelStr === '7-9') return 7;
+    // Handle "1(4)" or simple "1"
+    const match = levelStr.match(/^\d+/);
+    return match ? parseInt(match[0], 10) : 99;
+};
+
 export const fetchSyllabusContent = async (
     level: HskLevel,
     category: Category,
@@ -83,11 +91,17 @@ export const fetchSyllabusContent = async (
             let error = null;
 
             if (category === 'vocabulary') {
-                const res = await supabase
+                let query = supabase
                     .from('entries_vocabulary')
-                    .select('*')
-                    .eq('level', level)
-                    .order('ordinal', { ascending: true });
+                    .select('*');
+
+                if (level !== 'all') {
+                    // Match "1", "1（4）" (Full-width parens used in DB)
+                    // Note: ASCII parens cause Supabase query issues, so we only match full-width which covers our data case.
+                    query = query.or(`level.eq.${level},level.ilike.${level}（%）`);
+                }
+
+                const res = await query.order('ordinal', { ascending: true });
                 data = res.data || [];
                 error = res.error;
             } else if (category === 'characters') {
@@ -95,7 +109,9 @@ export const fetchSyllabusContent = async (
                     .from('entries_character')
                     .select('*');
 
-                if (level === '1' || level === '2') {
+                if (level === 'all') {
+                    // No level filter for all
+                } else if (level === '1' || level === '2') {
                     // For levels 1 and 2, also include mixed "1-2" level items (usually writing)
                     query = query.in('level', [level, '1-2']);
                 } else {
@@ -106,26 +122,46 @@ export const fetchSyllabusContent = async (
                 data = res.data || [];
                 error = res.error;
             } else if (category === 'tasks') {
-                const res = await supabase
+                let query = supabase
                     .from('entries_task')
-                    .select('*')
-                    .eq('level', level);
+                    .select('*');
+
+                if (level !== 'all') {
+                    query = query.eq('level', level);
+                }
+
+                const res = await query;
                 data = res.data || [];
                 error = res.error;
             } else if (category === 'topics') {
-                const res = await supabase
+                let query = supabase
                     .from('entries_topic')
-                    .select('*')
-                    .eq('level', level);
+                    .select('*');
+
+                if (level !== 'all') {
+                    query = query.eq('level', level);
+                }
+
+                const res = await query;
                 data = res.data || [];
                 error = res.error;
             } else {
-                const res = await supabase
+                let query = supabase
                     .from('entries_grammar')
-                    .select('*')
-                    .eq('level', level);
+                    .select('id, category, sub_category, pattern, name, explanation, example, level, category_en, category_vi, sub_category_en, sub_category_vi, name_en, name_vi');
+
+                if (level !== 'all') {
+                    query = query.eq('level', level);
+                }
+
+                const res = await query;
                 data = res.data || [];
                 error = res.error;
+            }
+
+            // Sort by level if 'all' is selected
+            if (level === 'all') {
+                data.sort((a, b) => getLevelValue(a.level) - getLevelValue(b.level));
             }
 
             if (error) {
@@ -134,11 +170,32 @@ export const fetchSyllabusContent = async (
 
             if (data && data.length > 0) {
                 // Map to frontend types
-                const items = data.map(item => mapDbItemToFrontend(item, category, language));
+                const rawItems = data.map(item => mapDbItemToFrontend(item, category, language));
+
+                // Client-side deduplication to handle potential DB duplicates
+                const seen = new Set<string>();
+                const items = rawItems.filter(item => {
+                    let key = '';
+                    if ('hanzi' in item) { // Vocab
+                        key = `v-${item.hanzi}-${item.level}-${item.ordinal}`;
+                    } else if ('char' in item) { // Char
+                        key = `c-${item.char}-${item.level}-${item.type}-${item.ordinal}`;
+                    } else if ('pattern' in item && 'name' in item) { // Grammar
+                        key = `g-${item.name}-${item.level}-${item.pattern}`;
+                    } else {
+                        // Tasks/Topics: Use JSON stringify as fallback for deep equality check key
+                        // or just skip deduplication for these if not critical
+                        return true;
+                    }
+
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
 
                 const langDesc = language === 'vi' ? "Nội dung từ cơ sở dữ liệu" :
-                    language === 'zh' ? "来自数据库的内容" :
-                        "Content from Database";
+                    language === 'zh' ? "来自 HSK 3.0 官方考纲" :
+                        "Content from HSK 3.0 Official Syllabus";
 
                 return {
                     items,
@@ -250,9 +307,9 @@ const mapDbItemToFrontend = (item: any, category: Category, language: Language =
             secondary: language === 'vi' ? item.secondary_topic_vi || item.secondary_topic :
                 language === 'en' ? item.secondary_topic_en || item.secondary_topic :
                     item.secondary_topic,
-            items: language === 'vi' ? (item.tertiary_items_vi && item.tertiary_items_vi.length > 0 ? item.tertiary_items_vi : item.tertiary_items) :
+            items: (language === 'vi' ? (item.tertiary_items_vi && item.tertiary_items_vi.length > 0 ? item.tertiary_items_vi : item.tertiary_items) :
                 language === 'en' ? (item.tertiary_items_en && item.tertiary_items_en.length > 0 ? item.tertiary_items_en : item.tertiary_items) :
-                    item.tertiary_items,
+                    item.tertiary_items) || [],
             source: item.source || 'official',
             level: item.level,
             section: category
@@ -267,7 +324,14 @@ const mapDbItemToFrontend = (item: any, category: Category, language: Language =
             example: item.example,
             source: item.source || 'official',
             level: item.level,
-            section: category
+            section: category,
+            // Map translations (snake_case from DB to underscore props)
+            category_en: item.category_en,
+            category_vi: item.category_vi,
+            sub_category_en: item.sub_category_en,
+            sub_category_vi: item.sub_category_vi,
+            name_en: item.name_en,
+            name_vi: item.name_vi
         } as GrammarItem;
     }
 };

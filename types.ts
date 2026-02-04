@@ -1,4 +1,4 @@
-export type HskLevel = '1' | '2' | '3' | '4' | '5' | '6' | '7-9';
+export type HskLevel = 'all' | '1' | '2' | '3' | '4' | '5' | '6' | '7-9';
 
 export type Category = 'vocabulary' | 'characters' | 'grammar' | 'tasks' | 'topics' | 'search';
 
@@ -33,6 +33,13 @@ export interface GrammarItem extends BaseItem {
   name: string;          // Specific name
   explanation: string;
   example: string;
+  // Translation fields (optional, from DB)
+  category_en?: string;
+  category_vi?: string;
+  sub_category_en?: string;
+  sub_category_vi?: string;
+  name_en?: string;
+  name_vi?: string;
 }
 
 export interface TaskItem extends BaseItem {

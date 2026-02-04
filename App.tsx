@@ -9,6 +9,7 @@ import { Sparkles, AlertCircle, Home, Search, X, Globe, BookA, Languages, Scroll
 import { OFFICIAL_DATA } from './data/hskData';
 import { useLanguage } from './contexts/LanguageContext';
 import { Language } from './utils/translations';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 type ViewState = 'home' | 'explorer';
 
@@ -27,12 +28,83 @@ const App: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchCategory, setSearchCategory] = useState<Category | 'all'>('all');
 
+  /* URL State Management */
+
+  // 1. Initialize state from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const initialView = (params.get('view') as ViewState) || 'home';
+    const initialLevel = (params.get('level') as HskLevel) || '1';
+    const initialCategory = (params.get('category') as Category) || 'vocabulary';
+    const initialQuery = params.get('q') || '';
+
+    // Only set if different to avoid double-renders or overwrites
+    setView(initialView);
+    setCurrentLevel(initialLevel);
+    setCurrentCategory(initialCategory);
+    if (initialQuery) {
+      setSearchQuery(initialQuery);
+      setIsSearching(true);
+      performSearch(initialQuery); // Trigger search if query exists
+    }
+  }, []); // Run once on mount
+
+  // 2. Listen for PopState events (Back/Forward button)
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const newView = (params.get('view') as ViewState) || 'home';
+
+      setView(newView);
+
+      if (newView === 'explorer') {
+        const newLevel = (params.get('level') as HskLevel) || '1';
+        const newCategory = (params.get('category') as Category) || 'vocabulary';
+        const newQuery = params.get('q') || '';
+
+        setCurrentLevel(newLevel);
+        setCurrentCategory(newCategory);
+        setSearchQuery(newQuery);
+
+        if (newQuery) {
+          setIsSearching(true);
+          performSearch(newQuery);
+        } else {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchQuery('');
+        setIsSearching(false);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // 3. Helper to push state
+  const updateUrl = (viewState: ViewState, level?: HskLevel, category?: Category, query?: string) => {
+    const params = new URLSearchParams();
+    if (viewState === 'home') {
+      // No params for home usually, or maybe preserve lang?
+    } else {
+      params.set('view', 'explorer');
+      if (level) params.set('level', level);
+      if (category) params.set('category', category);
+      if (query) params.set('q', query);
+    }
+
+    const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+    window.history.pushState({}, '', newUrl);
+  };
+
   const navigateToExplorer = (level: HskLevel, category: Category) => {
     setCurrentLevel(level);
     setCurrentCategory(category);
     setView('explorer');
     setSearchQuery(''); // Clear search on nav
     setIsSearching(false);
+    updateUrl('explorer', level, category);
   };
 
   const loadData = async (forceAi: boolean = false) => {
@@ -89,11 +161,13 @@ const App: React.FC = () => {
     setSearchQuery(term);
     setView('explorer');
     performSearch(term);
+    updateUrl('explorer', currentLevel, currentCategory, term);
   };
 
   const clearSearch = () => {
     setSearchQuery('');
     setIsSearching(false);
+    updateUrl('explorer', currentLevel, currentCategory); // Clear query param
     if (view === 'explorer') {
       loadData(false); // Reload current context
     }
@@ -131,7 +205,12 @@ const App: React.FC = () => {
       {view === 'explorer' && (
         <LevelSelector
           currentLevel={currentLevel}
-          onSelectLevel={(l) => { setIsSearching(false); setSearchQuery(''); setCurrentLevel(l); }}
+          onSelectLevel={(l) => {
+            setIsSearching(false);
+            setSearchQuery('');
+            setCurrentLevel(l);
+            updateUrl('explorer', l, currentCategory);
+          }}
         />
       )}
 
@@ -143,7 +222,10 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4 flex-1">
             {view === 'explorer' && (
               <button
-                onClick={() => setView('home')}
+                onClick={() => {
+                  setView('home');
+                  updateUrl('home');
+                }}
                 className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
                 title="Back to Home"
               >
@@ -157,6 +239,7 @@ const App: React.FC = () => {
                   if (searchQuery.trim()) {
                     if (view === 'home') setView('explorer');
                     performSearch(searchQuery);
+                    updateUrl('explorer', currentLevel, currentCategory, searchQuery);
                   }
                 }}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-hsk-red transition-colors"
@@ -178,6 +261,7 @@ const App: React.FC = () => {
                   if (e.key === 'Enter' && searchQuery.trim()) {
                     if (view === 'home') setView('explorer');
                     performSearch(searchQuery);
+                    updateUrl('explorer', currentLevel, currentCategory, searchQuery);
                   }
                 }}
                 className="w-full bg-gray-100 border-none rounded-full pl-10 pr-10 py-2 text-sm focus:ring-2 focus:ring-hsk-red/20 focus:bg-white transition-all outline-none text-ink placeholder-gray-500"
@@ -229,7 +313,9 @@ const App: React.FC = () => {
               {!isSearching && (
                 <div className="mb-8 text-center md:text-left flex flex-col md:flex-row justify-between items-end">
                   <div>
-                    <h2 className="text-3xl font-bold text-ink mb-2 font-serif">HSK {t('level')} {currentLevel}</h2>
+                    <h2 className="text-3xl font-bold text-ink mb-2 font-serif">
+                      {currentLevel === 'all' ? t('allLevels') : `HSK ${t('level')} ${currentLevel}`}
+                    </h2>
                     <p className="text-gray-500">{t('heroDesc')}</p>
                   </div>
 
@@ -240,7 +326,10 @@ const App: React.FC = () => {
               {!isSearching && (
                 <CategoryTabs
                   currentCategory={currentCategory}
-                  onSelectCategory={setCurrentCategory}
+                  onSelectCategory={(c) => {
+                    setCurrentCategory(c);
+                    updateUrl('explorer', currentLevel, c);
+                  }}
                 />
               )}
 
@@ -256,8 +345,8 @@ const App: React.FC = () => {
                         <button
                           onClick={() => setSearchCategory('all')}
                           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${searchCategory === 'all'
-                              ? 'bg-ink text-white shadow-md'
-                              : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100 hover:border-gray-200'
+                            ? 'bg-ink text-white shadow-md'
+                            : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100 hover:border-gray-200'
                             }`}
                         >
                           <Search size={16} />
@@ -273,8 +362,8 @@ const App: React.FC = () => {
                                 key={cat}
                                 onClick={() => setSearchCategory(cat)}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${searchCategory === cat
-                                    ? 'bg-ink text-white shadow-md'
-                                    : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100 hover:border-gray-200'
+                                  ? 'bg-ink text-white shadow-md'
+                                  : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100 hover:border-gray-200'
                                   }`}
                               >
                                 {icon}
@@ -302,12 +391,15 @@ const App: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <ContentList
-                  data={isSearching && searchCategory !== 'all' && data ? { ...data, items: data.items.filter(i => i.section === searchCategory) } : data}
-                  category={isSearching ? 'search' : currentCategory}
-                  isLoading={loading.status === 'loading'}
-                  onRefresh={() => loadData(true)}
-                />
+                <ErrorBoundary>
+                  <ContentList
+                    data={isSearching && searchCategory !== 'all' && data ? { ...data, items: data.items.filter(i => i.section === searchCategory) } : data}
+                    category={isSearching ? 'search' : currentCategory}
+                    level={currentLevel}
+                    isLoading={loading.status === 'loading'}
+                    onRefresh={() => loadData(true)}
+                  />
+                </ErrorBoundary>
               )}
 
             </div>
