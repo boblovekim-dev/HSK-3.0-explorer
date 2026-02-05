@@ -4,8 +4,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
+  // Use '/' for Vercel, '/HSK-3.0-explorer/' for GitHub Pages
+  const base = process.env.VERCEL ? '/' : '/HSK-3.0-explorer/';
   return {
-    base: '/HSK-3.0-explorer/',
+    base,
     server: {
       port: 3000,
       host: '0.0.0.0',
