@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Category, SyllabusResponse, VocabItem, CharItem, GrammarItem, TaskItem, TopicItem } from '../types';
-import { Volume2, Sparkles, ShieldCheck, PenTool, Eye, Search, X } from 'lucide-react';
+import { Volume2, Sparkles, ShieldCheck, PenTool, Eye, Search, X, ChevronUp } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { translateGrammarTerm } from '../utils/translations';
+import { translateGrammarTerm, translatePartOfSpeech } from '../utils/translations';
 import { Pagination } from './Pagination';
 import { ttsService } from '../services/ttsService';
+import { TranslatableText } from './TranslatableText';
+import { ContentLockOverlay } from './ContentLockOverlay';
+import { LeadCaptureModal } from './LeadCaptureModal';
+import { hasSubmittedLead } from '../services/leadService';
 
 interface Props {
   data: SyllabusResponse | null;
@@ -123,6 +127,13 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
 
   const [activeTaskId, setActiveTaskId] = useState('');
   const [charType, setCharType] = useState<'reading' | 'writing'>('reading');
+
+  // Lead capture & content lock state
+  const [isContentUnlocked, setIsContentUnlocked] = useState(() => hasSubmittedLead());
+  const [showLeadModal, setShowLeadModal] = useState(false);
+
+  // Number of items to show when content is locked (first screen)
+  const LOCKED_ITEMS_COUNT = 5;
 
   // Tasks use infinite scroll/sidebar, others use pagination
   const itemsPerPage = category === 'tasks' ? 5000 : 50;
@@ -313,10 +324,20 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
     });
 
     const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-    const displayedItems = filteredItems.slice(
+
+    // Determine items to display based on lock state
+    const allDisplayedItems = filteredItems.slice(
       (currentPage - 1) * itemsPerPage,
       currentPage * itemsPerPage
     );
+
+    // When locked, show only first few items
+    const displayedItems = isContentUnlocked
+      ? allDisplayedItems
+      : allDisplayedItems.slice(0, LOCKED_ITEMS_COUNT);
+
+    // Show lock overlay when there are more items beyond the locked count
+    const shouldShowLockOverlay = !isContentUnlocked && allDisplayedItems.length > LOCKED_ITEMS_COUNT;
 
     switch (category) {
       case 'vocabulary':
@@ -365,8 +386,9 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="inline-block px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium">
-                        {item.partOfSpeech}
+                        {translatePartOfSpeech(item.partOfSpeech, language)}
                       </span>
+                      <TranslatableText text={item.hanzi} hideText />
                       <PlayButton text={item.hanzi} iconSize={16} />
                     </div>
                   </div>
@@ -399,11 +421,11 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
                             </span>
                           </td>
                         )}
-                        <td className="px-6 py-4 text-xl font-serif text-ink font-medium">{renderHanzi(item.hanzi)}</td>
+                        <td className="px-6 py-4 text-xl font-serif text-ink font-medium"><TranslatableText text={item.hanzi}>{renderHanzi(item.hanzi)}</TranslatableText></td>
                         <td className="px-6 py-4 text-gray-600 font-mono">{item.pinyin}</td>
                         <td className="px-6 py-4">
                           <span className="inline-block px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium">
-                            {item.partOfSpeech}
+                            {translatePartOfSpeech(item.partOfSpeech, language)}
                           </span>
                         </td>
                         <td className="px-6 py-4">
@@ -415,7 +437,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
                 </table>
               </div>
             </div>
-            {totalPages > 1 && (
+            {isContentUnlocked && totalPages > 1 && (
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -439,8 +461,13 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
               {items.map((item, idx) => (
                 <div key={idx} className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center hover:border-hsk-red/30 transition-colors relative group">
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {/* Audio icon - top right, shows on hover (desktop) or always (mobile) */}
+                  <div className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <PlayButton text={item.char} iconSize={14} className="bg-white shadow-sm border border-gray-100" />
+                  </div>
+                  {/* Translate icon - bottom right, shows on hover (desktop) or always (mobile) */}
+                  <div className="absolute bottom-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <TranslatableText text={item.char} hideText />
                   </div>
                   {level === 'all' && item.level && (
                     <span className={`absolute top-1 left-1 text-[9px] font-bold text-white bg-hsk-red rounded-full h-4 flex items-center justify-center ${item.level.length > 1 ? 'px-1.5 min-w-[1.25rem]' : 'w-4'} whitespace-nowrap`}>
@@ -525,7 +552,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
               </div>
             ) : null}
 
-            {totalPages > 1 && (
+            {isContentUnlocked && totalPages > 1 && (
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -813,7 +840,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
                           </td>
                           <td className="px-4 py-3">
                             <div className="font-medium text-ink">
-                              {contentRaw}
+                              <TranslatableText text={contentRaw || ''}>{contentRaw}</TranslatableText>
                             </div>
                           </td>
                           <td className="px-4 py-3">
@@ -827,7 +854,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
               </div>
             </div>
 
-            {totalPages > 1 && (
+            {isContentUnlocked && totalPages > 1 && (
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -935,6 +962,20 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
                 ))}
               </div>
             </div>
+
+            {/* Floating Back to Top Button (Mobile) */}
+            <button
+              onClick={() => {
+                const mainContainer = document.querySelector('main');
+                if (mainContainer) {
+                  mainContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
+              className="lg:hidden fixed bottom-6 right-6 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 active:bg-blue-800 transition-all z-50"
+              aria-label="Scroll to top"
+            >
+              <ChevronUp size={20} />
+            </button>
           </div>
         );
 
@@ -1065,7 +1106,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
               </div>
             </div>
 
-            {totalPages > 1 && (
+            {isContentUnlocked && totalPages > 1 && (
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -1089,7 +1130,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
                         <h3 className="text-xl font-bold font-serif text-ink">{renderHanzi(item.hanzi)}</h3>
                         <PlayButton text={item.hanzi} className="mt-1" />
                         <span className="text-sm font-mono text-gray-500">{item.pinyin}</span>
-                        <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{item.partOfSpeech}</span>
+                        <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{translatePartOfSpeech(item.partOfSpeech, language)}</span>
                       </div>
                       <p className="text-gray-800 text-sm mb-1">{item.definition}</p>
                       {item.exampleSentence && <p className="text-gray-500 text-xs italic">"{item.exampleSentence}"</p>}
@@ -1164,7 +1205,24 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
     <div>
       <div className="mt-4">
         {renderContent()}
+
+        {/* Content Lock Overlay */}
+        {!isContentUnlocked && data && data.items.length > LOCKED_ITEMS_COUNT && (
+          <div className="mt-6">
+            <ContentLockOverlay onUnlockClick={() => setShowLeadModal(true)} />
+          </div>
+        )}
       </div>
+
+      {/* Lead Capture Modal */}
+      <LeadCaptureModal
+        isOpen={showLeadModal}
+        onClose={() => setShowLeadModal(false)}
+        onSuccess={() => {
+          setIsContentUnlocked(true);
+          setShowLeadModal(false);
+        }}
+      />
     </div>
   );
 };

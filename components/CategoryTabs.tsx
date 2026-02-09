@@ -9,14 +9,42 @@ interface Props {
 }
 
 export const CategoryTabs: React.FC<Props> = ({ currentCategory, onSelectCategory }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
-  const tabs: { id: Category; label: string; icon: React.ReactNode }[] = [
-    { id: 'vocabulary', label: t('vocab'), icon: <BookA size={16} /> },
-    { id: 'characters', label: t('chars'), icon: <Languages size={16} /> },
-    { id: 'grammar', label: t('grammar'), icon: <ScrollText size={16} /> },
-    { id: 'tasks', label: t('tasks'), icon: <ListTodo size={16} /> },
-    { id: 'topics', label: t('topics'), icon: <MessageSquare size={16} /> },
+  // Get mobile-friendly short labels for each language
+  const getMobileLabel = (category: Category): string => {
+    const mobileLabels: Record<string, Record<Category, string>> = {
+      en: {
+        vocabulary: 'Vocab',
+        characters: 'Chars',
+        grammar: 'Grammar',
+        tasks: 'Tasks',
+        topics: 'Topics',
+      },
+      vi: {
+        vocabulary: 'Từ',
+        characters: 'Hán',
+        grammar: 'Ngữ',
+        tasks: 'NV',
+        topics: 'CĐề',
+      },
+      zh: {
+        vocabulary: '词汇',
+        characters: '汉字',
+        grammar: '语法',
+        tasks: '任务',
+        topics: '话题',
+      },
+    };
+    return mobileLabels[language]?.[category] || t(category);
+  };
+
+  const tabs: { id: Category; label: string; mobileLabel: string; icon: React.ReactNode }[] = [
+    { id: 'vocabulary', label: t('vocab'), mobileLabel: getMobileLabel('vocabulary'), icon: <BookA size={16} /> },
+    { id: 'characters', label: t('chars'), mobileLabel: getMobileLabel('characters'), icon: <Languages size={16} /> },
+    { id: 'grammar', label: t('grammar'), mobileLabel: getMobileLabel('grammar'), icon: <ScrollText size={16} /> },
+    { id: 'tasks', label: t('tasks'), mobileLabel: getMobileLabel('tasks'), icon: <ListTodo size={16} /> },
+    { id: 'topics', label: t('topics'), mobileLabel: getMobileLabel('topics'), icon: <MessageSquare size={16} /> },
   ];
 
   return (
@@ -35,7 +63,7 @@ export const CategoryTabs: React.FC<Props> = ({ currentCategory, onSelectCategor
           >
             <span className="mr-1 md:mr-2 opacity-70">{tab.icon}</span>
             <span className="hidden sm:inline">{tab.label}</span>
-            <span className="sm:hidden">{tab.label.slice(0, 3)}</span>
+            <span className="sm:hidden">{tab.mobileLabel}</span>
           </button>
         ))}
       </div>

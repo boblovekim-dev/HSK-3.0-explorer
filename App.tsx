@@ -3,8 +3,10 @@ import { LevelSelector } from './components/LevelSelector';
 import { CategoryTabs } from './components/CategoryTabs';
 import { ContentList } from './components/ContentList';
 import { HomePage } from './components/HomePage';
+import { FloatingDownload } from './components/FloatingDownload';
 import { HskLevel, Category, SyllabusResponse, LoadingState, VocabItem, CharItem, GrammarItem } from './types';
 import { fetchSyllabusContent, searchContent } from './services/contentService';
+import { trackVisit, trackPageExposure, trackLanguageSelection } from './services/analyticsService';
 import { Sparkles, AlertCircle, Home, Search, X, Globe, BookA, Languages, ScrollText, ListTodo, MessageSquare } from 'lucide-react';
 import { OFFICIAL_DATA } from './data/hskData';
 import { useLanguage } from './contexts/LanguageContext';
@@ -47,6 +49,9 @@ const App: React.FC = () => {
       setIsSearching(true);
       performSearch(initialQuery); // Trigger search if query exists
     }
+
+    // Track initial visit
+    trackVisit();
   }, []); // Run once on mount
 
   // 2. Listen for PopState events (Back/Forward button)
@@ -105,6 +110,9 @@ const App: React.FC = () => {
     setSearchQuery(''); // Clear search on nav
     setIsSearching(false);
     updateUrl('explorer', level, category);
+
+    // Track page exposure
+    trackPageExposure(level, category);
   };
 
   const loadData = async (forceAi: boolean = false) => {
@@ -176,6 +184,9 @@ const App: React.FC = () => {
   const toggleLanguage = (lang: Language) => {
     setLanguage(lang);
     setShowLangMenu(false);
+
+    // Track language selection
+    trackLanguageSelection(lang);
   };
 
   const getLangLabel = (lang: Language) => {
@@ -217,9 +228,21 @@ const App: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
 
-        {/* Top Navbar - Hidden on mobile for home view */}
-        <header className={`bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0 z-20 gap-4 ${view === 'home' ? 'hidden md:flex' : ''}`}>
-          <div className="flex items-center gap-4 flex-1">
+        {/* Top Navbar */}
+        <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-2 md:py-3 flex items-center justify-between shrink-0 z-20 gap-2 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-4 flex-1">
+            {/* Logo */}
+            <div className="flex items-center gap-2 shrink-0">
+              <img
+                src={`${import.meta.env.BASE_URL}assets/wanli-logo-new.png`}
+                alt="WanLi 萬里"
+                className="h-8 md:h-10 w-auto"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            </div>
+
             {view === 'explorer' && (
               <button
                 onClick={() => {
@@ -406,6 +429,9 @@ const App: React.FC = () => {
           </main>
         )}
       </div>
+
+      {/* Floating Download Widget */}
+      <FloatingDownload />
     </div>
   );
 };

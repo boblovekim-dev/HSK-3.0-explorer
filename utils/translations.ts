@@ -175,15 +175,95 @@ export const grammarCategoryTranslations: Record<Language, Record<string, string
     '紧缩复句': 'Câu phức rút gọn',
     '引出凭借 、依据': 'Biểu thị căn cứ, cơ sở',
     '其他 （话语标记）': 'Khác (Dấu hiệu diễn ngôn)',
+    '其他（话语标记）': 'Khác (Dấu hiệu diễn ngôn)', // Without space
   },
   zh: {} // Chinese doesn't need translation, use original
+};
+
+// Part of speech abbreviation translations (for vocabulary)
+export const partOfSpeechTranslations: Record<Language, Record<string, string>> = {
+  en: {
+    '名': 'N',        // Noun
+    '动': 'V',        // Verb
+    '形': 'Adj',      // Adjective
+    '副': 'Adv',      // Adverb
+    '数': 'Num',      // Numeral
+    '量': 'MW',       // Measure Word
+    '代': 'Pron',     // Pronoun
+    '介': 'Prep',     // Preposition
+    '连': 'Conj',     // Conjunction
+    '助': 'Part',     // Particle
+    '叹': 'Interj',   // Interjection
+    '拟声': 'Onom',   // Onomatopoeia
+    '后缀': 'Suf',    // Suffix
+    '前缀': 'Pref',   // Prefix
+    '语素': 'Morph',  // Morpheme
+  },
+  vi: {
+    '名': 'DT',       // Danh từ
+    '动': 'ĐT',       // Động từ
+    '形': 'TT',       // Tính từ
+    '副': 'PT',       // Phó từ
+    '数': 'ST',       // Số từ
+    '量': 'LT',       // Lượng từ
+    '代': 'ĐaT',      // Đại từ
+    '介': 'GT',       // Giới từ
+    '连': 'LiT',      // Liên từ
+    '助': 'TrT',      // Trợ từ
+    '叹': 'ThT',      // Thán từ
+    '拟声': 'TT',     // Tượng thanh
+    '后缀': 'HT',     // Hậu tố
+    '前缀': 'TiT',    // Tiền tố
+    '语素': 'HV',     // Hình vị
+  },
+  zh: {} // Chinese uses original
+};
+
+// Translate part of speech string (handles compound like "名、动" or "形、介、（动、量）")
+export const translatePartOfSpeech = (pos: string | undefined, language: Language): string => {
+  if (!pos) return '';
+  if (language === 'zh') return pos;
+
+  const translations = partOfSpeechTranslations[language];
+
+  // Replace each Chinese part of speech abbreviation with its translation
+  let result = pos;
+
+  // Sort by length descending to match longer terms first (e.g., "拟声" before "声")
+  const sortedKeys = Object.keys(translations).sort((a, b) => b.length - a.length);
+
+  for (const key of sortedKeys) {
+    result = result.split(key).join(translations[key]);
+  }
+
+  // Replace Chinese punctuation with English equivalents
+  result = result.replace(/、/g, ', ');  // 顿号 to comma
+  result = result.replace(/（/g, '(');   // Full-width parentheses
+  result = result.replace(/）/g, ')');
+
+  return result;
 };
 
 // Helper function to translate grammar terms
 export const translateGrammarTerm = (term: string | undefined, language: Language): string => {
   if (!term) return '';
   if (language === 'zh') return term;
-  return grammarCategoryTranslations[language][term] || term;
+
+  // Try exact match first
+  let translation = grammarCategoryTranslations[language][term];
+  if (translation) return translation;
+
+  // Try with normalized spaces (remove extra spaces around parentheses)
+  const normalized = term.replace(/\s*（/g, '（').replace(/\s+/g, ' ').trim();
+  translation = grammarCategoryTranslations[language][normalized];
+  if (translation) return translation;
+
+  // Try with space before parenthesis
+  const withSpace = term.replace(/（/g, ' （');
+  translation = grammarCategoryTranslations[language][withSpace];
+  if (translation) return translation;
+
+  return term;
 };
 
 export const translations = {
