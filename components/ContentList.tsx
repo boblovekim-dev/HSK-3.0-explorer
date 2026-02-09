@@ -717,7 +717,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
               </div>
               <div className="flex-shrink-0 bg-white p-2 rounded-lg border border-blue-100 shadow-sm group relative">
                 <img
-                  src={`${import.meta.env.BASE_URL}assets/zalo-qr.jpg`}
+                  src={`${import.meta.env.BASE_URL}assets/zalo-qr.png`}
                   alt="Zalo QR Code"
                   className="w-24 h-24 object-contain"
                   onError={(e) => {
