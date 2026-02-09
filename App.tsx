@@ -3,7 +3,11 @@ import { LevelSelector } from './components/LevelSelector';
 import { CategoryTabs } from './components/CategoryTabs';
 import { ContentList } from './components/ContentList';
 import { HomePage } from './components/HomePage';
-import { FloatingDownload } from './components/FloatingDownload';
+import { FloatingActions } from './components/FloatingActions';
+
+// ...
+
+
 import { HskLevel, Category, SyllabusResponse, LoadingState, VocabItem, CharItem, GrammarItem } from './types';
 import { fetchSyllabusContent, searchContent } from './services/contentService';
 import { trackVisit, trackPageExposure, trackLanguageSelection } from './services/analyticsService';
@@ -433,7 +437,8 @@ const App: React.FC = () => {
       </div>
 
       {/* Floating Download Widget */}
-      <FloatingDownload />
+      {/* Floating Actions Sidebar */}
+      <FloatingActions />
     </div>
   );
 };

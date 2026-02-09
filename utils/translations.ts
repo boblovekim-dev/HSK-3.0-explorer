@@ -320,7 +320,10 @@ export const translations = {
     wanliHsk: "WanLi HSK",
     grammarPromoTitle: "HSK Grammar Pass Package, Free for a Limited Time!",
     grammarPromoDesc: "Scan code to add exclusive customer service: [Zalo] 🎁 Reply: \"Grammar Materials\" to claim",
-    scanToAdd: "Scan to add Zalo"
+    scanToAdd: "Scan to add Zalo",
+    customerService: "Customer Service",
+    backToTop: "Back to Top",
+    downloadApp: "Download App"
   },
   vi: {
     appTitle: "Khám phá HSK 3.0",
@@ -375,7 +378,10 @@ export const translations = {
     wanliHsk: "WanLi HSK",
     grammarPromoTitle: "Gói tài liệu ngữ pháp HSK, nhận miễn phí trong thời gian giới hạn!",
     grammarPromoDesc: "Quét mã để thêm CSKH: [Zalo] 🎁 Trả lời: \"Tài liệu ngữ pháp\" để nhận",
-    scanToAdd: "Quét mã thêm Zalo"
+    scanToAdd: "Quét mã thêm Zalo",
+    customerService: "Chăm sóc khách hàng",
+    backToTop: "Về đầu trang",
+    downloadApp: "Tải APP"
   },
   zh: {
     appTitle: "HSK 3.0 考纲探索",
@@ -430,6 +436,9 @@ export const translations = {
     wanliHsk: "万里HSK",
     grammarPromoTitle: "HSK语法通关资料包，限时0元领！",
     grammarPromoDesc: "扫码添加专属客服：[Zalo二维码] 🎁 回复：语法资料 领取",
-    scanToAdd: "扫码添加Zalo"
+    scanToAdd: "扫码添加Zalo",
+    customerService: "专属客服",
+    backToTop: "返回顶部",
+    downloadApp: "下载APP"
   }
 };
