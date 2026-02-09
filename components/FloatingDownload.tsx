@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Download, ChevronUp, ChevronDown } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface FloatingDownloadProps {
     appLogoUrl?: string;
@@ -15,6 +16,7 @@ export const FloatingDownload: React.FC<FloatingDownloadProps> = ({
     qrCodeUrl = `${baseUrl}assets/app-qrcode.png`,
     downloadLink = 'https://wanlihsk.onelink.me/jqXw/t12b6ypg'
 }) => {
+    const { t } = useLanguage();
     const [isExpanded, setIsExpanded] = useState(true);
     const [isVisible, setIsVisible] = useState(true);
 
@@ -23,7 +25,7 @@ export const FloatingDownload: React.FC<FloatingDownloadProps> = ({
             <button
                 onClick={() => setIsVisible(true)}
                 className="fixed bottom-4 left-4 z-50 bg-gradient-to-r from-hsk-red to-red-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
-                title="显示下载"
+                title={t('downloadNow')}
             >
                 <Download size={24} />
             </button>
@@ -45,7 +47,7 @@ export const FloatingDownload: React.FC<FloatingDownloadProps> = ({
                                 (e.target as HTMLImageElement).style.display = 'none';
                             }}
                         />
-                        <span className="text-white font-bold text-sm">万里HSK</span>
+                        <span className="text-white font-bold text-sm">{t('wanliHsk')}</span>
                     </div>
                     <div className="flex items-center gap-1">
                         <button
@@ -84,7 +86,7 @@ export const FloatingDownload: React.FC<FloatingDownloadProps> = ({
 
                         {/* 扫码提示 */}
                         <p className="text-center text-xs text-gray-500">
-                            扫码下载APP
+                            {t('scanToDownload')}
                         </p>
 
                         {/* 下载按钮 */}
@@ -96,7 +98,7 @@ export const FloatingDownload: React.FC<FloatingDownloadProps> = ({
                         >
                             <div className="flex items-center justify-center gap-2">
                                 <Download size={16} />
-                                <span>立即下载</span>
+                                <span>{t('downloadNow')}</span>
                             </div>
                         </a>
                     </div>

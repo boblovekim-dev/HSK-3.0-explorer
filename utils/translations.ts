@@ -314,7 +314,13 @@ export const translations = {
     primaryTopic: "Primary Topic",
     secondaryTopic: "Secondary Topic",
     directory: "Directory",
-    grammarContent: "Grammar Content"
+    grammarContent: "Grammar Content",
+    scanToDownload: "Scan to download APP",
+    downloadNow: "Download Now",
+    wanliHsk: "WanLi HSK",
+    grammarPromoTitle: "HSK Grammar Pass Package, Free for a Limited Time!",
+    grammarPromoDesc: "Scan code to add exclusive customer service: [Zalo] 🎁 Reply: \"Grammar Materials\" to claim",
+    scanToAdd: "Scan to add Zalo"
   },
   vi: {
     appTitle: "Khám phá HSK 3.0",
@@ -363,7 +369,13 @@ export const translations = {
     primaryTopic: "Chủ đề chính",
     secondaryTopic: "Chủ đề phụ",
     directory: "Mục lục",
-    grammarContent: "Nội dung ngữ pháp"
+    grammarContent: "Nội dung ngữ pháp",
+    scanToDownload: "Quét mã tải APP",
+    downloadNow: "Tải ngay",
+    wanliHsk: "WanLi HSK",
+    grammarPromoTitle: "Gói tài liệu ngữ pháp HSK, nhận miễn phí trong thời gian giới hạn!",
+    grammarPromoDesc: "Quét mã để thêm CSKH: [Zalo] 🎁 Trả lời: \"Tài liệu ngữ pháp\" để nhận",
+    scanToAdd: "Quét mã thêm Zalo"
   },
   zh: {
     appTitle: "HSK 3.0 考纲探索",
@@ -412,6 +424,12 @@ export const translations = {
     primaryTopic: "一级话题",
     secondaryTopic: "二级话题",
     directory: "目录",
-    grammarContent: "语法内容"
+    grammarContent: "语法内容",
+    scanToDownload: "扫码下载APP",
+    downloadNow: "立即下载",
+    wanliHsk: "万里HSK",
+    grammarPromoTitle: "HSK语法通关资料包，限时0元领！",
+    grammarPromoDesc: "扫码添加专属客服：[Zalo二维码] 🎁 回复：语法资料 领取",
+    scanToAdd: "扫码添加Zalo"
   }
 };

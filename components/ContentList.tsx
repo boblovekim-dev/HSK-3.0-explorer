@@ -700,6 +700,33 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
 
         return (
           <div className="space-y-4">
+            {/* Grammar Promotion Banner */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-lg font-bold text-blue-900 mb-1">
+                  {t('grammarPromoTitle')}
+                </h3>
+                <p className="text-sm text-blue-700">
+                  {t('grammarPromoDesc').split(/\[(?:Zalo|Zalo二维码)\]/).map((part, i, arr) => (
+                    <React.Fragment key={i}>
+                      {part}
+                      {i < arr.length - 1 && <span className="font-bold underline cursor-pointer hover:text-blue-900 mx-1" title={t('scanToAdd')}>Zalo</span>}
+                    </React.Fragment>
+                  ))}
+                </p>
+              </div>
+              <div className="flex-shrink-0 bg-white p-2 rounded-lg border border-blue-100 shadow-sm group relative">
+                <img
+                  src={`${import.meta.env.BASE_URL}assets/zalo-qr.jpg`}
+                  alt="Zalo QR Code"
+                  className="w-24 h-24 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="%233b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><rect x="7" y="7" width="3" height="3"/><rect x="14" y="7" width="3" height="3"/><rect x="7" y="14" width="3" height="3"/><rect x="14" y="14" width="3" height="3"/></svg>';
+                  }}
+                />
+              </div>
+            </div>
+
             {/* Filters */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
               <div className="flex flex-nowrap gap-2 items-center overflow-x-auto pb-1 scrollbar-hide">
