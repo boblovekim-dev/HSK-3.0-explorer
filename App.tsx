@@ -256,45 +256,47 @@ const App: React.FC = () => {
               </button>
             )}
 
-            <div className="relative flex-1 max-w-xl">
-              <button
-                onClick={() => {
-                  if (searchQuery.trim()) {
-                    if (view === 'home') setView('explorer');
-                    performSearch(searchQuery);
-                    updateUrl('explorer', currentLevel, currentCategory, searchQuery);
-                  }
-                }}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-hsk-red transition-colors"
-                disabled={loading.status === 'loading'}
-              >
-                {loading.status === 'loading' ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-hsk-red border-t-transparent"></div>
-                ) : (
-                  <Search size={18} />
-                )}
-              </button>
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder={t('searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && searchQuery.trim()) {
-                    if (view === 'home') setView('explorer');
-                    performSearch(searchQuery);
-                    updateUrl('explorer', currentLevel, currentCategory, searchQuery);
-                  }
-                }}
-                className="w-full bg-gray-100 border-none rounded-full pl-10 pr-10 py-2 text-sm focus:ring-2 focus:ring-hsk-red/20 focus:bg-white transition-all outline-none text-ink placeholder-gray-500"
-              />
-              {searchQuery && (
-                <button onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  <X size={16} />
+            {view !== 'home' && (
+              <div className="relative flex-1 max-w-xl">
+                <button
+                  onClick={() => {
+                    if (searchQuery.trim()) {
+                      if (view === 'home') setView('explorer');
+                      performSearch(searchQuery);
+                      updateUrl('explorer', currentLevel, currentCategory, searchQuery);
+                    }
+                  }}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-hsk-red transition-colors"
+                  disabled={loading.status === 'loading'}
+                >
+                  {loading.status === 'loading' ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-hsk-red border-t-transparent"></div>
+                  ) : (
+                    <Search size={18} />
+                  )}
                 </button>
-              )}
-            </div>
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder={t('searchPlaceholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      if (view === 'home') setView('explorer');
+                      performSearch(searchQuery);
+                      updateUrl('explorer', currentLevel, currentCategory, searchQuery);
+                    }
+                  }}
+                  className="w-full bg-gray-100 border-none rounded-full pl-10 pr-10 py-2 text-sm focus:ring-2 focus:ring-hsk-red/20 focus:bg-white transition-all outline-none text-ink placeholder-gray-500"
+                />
+                {searchQuery && (
+                  <button onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Language Switcher */}
