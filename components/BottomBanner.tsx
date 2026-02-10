@@ -12,37 +12,36 @@ export const BottomBanner: React.FC = () => {
     if (!isVisible) return null;
 
     const appQrUrl = `${baseUrl}assets/app-qrcode.png`;
-    const logoUrl = `${baseUrl}assets/wanli-logo.png`;
+    const logoUrl = `${baseUrl}assets/banner-logo.png`;
+    const bgUrl = `${baseUrl}assets/banner-bg.png`;
 
     return (
-        <div className="fixed bottom-0 left-0 w-full z-40 bg-gradient-to-r from-blue-700 to-blue-500 text-white shadow-lg overflow-hidden">
+        <div
+            className="fixed bottom-0 left-0 w-full z-40 text-white shadow-lg overflow-hidden bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${bgUrl})` }}
+        >
             {/* Close Button */}
             <button
                 onClick={() => setIsVisible(false)}
                 className="absolute top-2 right-2 p-1 bg-black/20 hover:bg-black/30 rounded-full z-50 transition-colors"
+                aria-label="Close banner"
             >
                 <X size={16} />
             </button>
 
             {/* Content Container */}
-            <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between relative">
-
-                {/* Background Decor (Cloud pattern simulation) */}
-                <div className="absolute inset-0 opacity-10 pointer-events-none">
-                    <div className="absolute -top-10 -left-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
-                    <div className="absolute top-10 right-20 w-32 h-32 bg-purple-300 rounded-full blur-3xl"></div>
-                </div>
+            <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between relative h-24 md:h-28">
 
                 {/* Left Side: Logo + Text */}
-                <div className="flex items-center gap-4 z-10">
-                    <div className="hidden md:block w-16 h-16 bg-white/10 rounded-xl p-2 backdrop-blur-sm border border-white/20">
-                        <img src={logoUrl} alt="WanLi Logo" className="w-full h-full object-contain brightness-0 invert" />
+                <div className="flex items-center gap-4 z-10 h-full">
+                    <div className="hidden md:block h-full aspect-square relative py-2">
+                        <img src={logoUrl} alt="App Logo" className="w-full h-full object-contain" />
                     </div>
-                    <div className="flex flex-col">
-                        <h3 className="text-lg md:text-2xl font-bold leading-tight shadow-black/10 drop-shadow-md">
+                    <div className="flex flex-col justify-center h-full">
+                        <h3 className="text-lg md:text-2xl font-bold leading-tight shadow-black/30 drop-shadow-md">
                             {t('bannerTitle')}
                         </h3>
-                        <p className="text-xs md:text-sm opacity-90 font-light mt-1">
+                        <p className="text-xs md:text-sm opacity-90 font-light mt-1 shadow-black/30 drop-shadow-sm">
                             {t('bannerSubtitle')}
                         </p>
                     </div>
