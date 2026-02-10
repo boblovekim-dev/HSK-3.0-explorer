@@ -153,6 +153,24 @@ export async function trackLanguageSelection(language: string): Promise<void> {
 }
 
 /**
+ * 记录下载按钮点击
+ * - 记录点击平台 (ios, android, qr, zalo)
+ * - 绑定IP和国家信息
+ */
+export async function trackDownloadClick(platform: 'ios' | 'android' | 'qr' | 'zalo'): Promise<void> {
+    try {
+        const { ip, country } = await getIpInfo();
+        await supabase.from('download_clicks').insert({
+            ip_address: ip,
+            country: country,
+            platform: platform
+        });
+    } catch (error) {
+        console.warn('Analytics trackDownloadClick error:', error);
+    }
+}
+
+/**
  * 获取统计摘要（可用于管理后台）
  */
 export async function getAnalyticsSummary() {

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Download, ChevronUp, Headphones, Smartphone } from 'lucide-react';
+import React from 'react';
+import { ChevronUp, Headphones, Smartphone } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { trackDownloadClick } from '../services/analyticsService';
 
 // Get the base URL for assets
 const baseUrl = import.meta.env.BASE_URL || '/';
@@ -21,6 +22,7 @@ const StoreButton = ({ type, href }: { type: 'apple' | 'google', href: string })
             href={href}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackDownloadClick(isApple ? 'ios' : 'android')}
             className="flex items-center gap-2 bg-white text-black border border-gray-300 rounded-lg px-2 py-1.5 hover:bg-gray-50 transition-colors w-full shadow-sm"
         >
             <div className="shrink-0">
@@ -60,7 +62,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({ icon, label, onClick, color
     return (
         <div className="relative group flex items-center">
             {/* Popover Content (Left side) */}
-            <div className="absolute right-full mr-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-x-4 group-hover:translate-x-0 z-50">
+            <div className={`absolute right-full mr-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-x-4 group-hover:translate-x-0 z-50 ${children ? 'w-auto' : ''}`}>
                 {children ? (
                     children
                 ) : (
@@ -86,15 +88,6 @@ const ActionButton: React.FC<ActionButtonProps> = ({ icon, label, onClick, color
 
 export const FloatingActions: React.FC = () => {
     const { t } = useLanguage();
-    const [showBackToTop, setShowBackToTop] = useState(false);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setShowBackToTop(window.scrollY > 300);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
 
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -159,13 +152,11 @@ export const FloatingActions: React.FC = () => {
             </ActionButton>
 
             {/* Back to Top */}
-            <div className={`transition-all duration-500 transform ${showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
-                <ActionButton
-                    icon={<ChevronUp size={24} />}
-                    label={t('backToTop')}
-                    onClick={scrollToTop}
-                />
-            </div>
+            <ActionButton
+                icon={<ChevronUp size={24} />}
+                label={t('backToTop')}
+                onClick={scrollToTop}
+            />
         </div>
     );
 };

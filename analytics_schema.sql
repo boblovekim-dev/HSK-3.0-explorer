@@ -91,3 +91,16 @@ DROP POLICY IF EXISTS "Allow anonymous reads" ON leads;
 
 CREATE POLICY "Allow anonymous inserts" ON leads FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous reads" ON leads FOR SELECT USING (true);
+-- 下载按钮点击统计表
+CREATE TABLE download_clicks (
+  id BIGSERIAL PRIMARY KEY,
+  ip_address VARCHAR(45) NOT NULL,
+  country VARCHAR(100),
+  platform VARCHAR(20) NOT NULL, -- 'ios', 'android', 'qr', 'zalo'
+  clicked_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 启用RLS
+ALTER TABLE download_clicks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow anonymous inserts" ON download_clicks FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow anonymous select" ON download_clicks FOR SELECT USING (true);
