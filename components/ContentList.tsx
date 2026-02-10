@@ -990,19 +990,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
               </div>
             </div>
 
-            {/* Floating Back to Top Button (Mobile) */}
-            <button
-              onClick={() => {
-                const mainContainer = document.querySelector('main');
-                if (mainContainer) {
-                  mainContainer.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-              }}
-              className="lg:hidden fixed bottom-6 right-6 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 active:bg-blue-800 transition-all z-50"
-              aria-label="Scroll to top"
-            >
-              <ChevronUp size={20} />
-            </button>
+
           </div>
         );
 
