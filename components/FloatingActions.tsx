@@ -95,10 +95,10 @@ export const FloatingActions: React.FC = () => {
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
 
-        // Find and reset any scrollable container (in case of overflow wrappers)
-        const scrollable = document.querySelector('.min-h-screen');
-        if (scrollable) {
-            scrollable.scrollTop = 0;
+        // Target the actual scroll container (main element with overflow-y-auto)
+        const mainContainer = document.querySelector('main');
+        if (mainContainer) {
+            mainContainer.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
