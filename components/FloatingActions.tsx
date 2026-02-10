@@ -90,7 +90,10 @@ export const FloatingActions: React.FC = () => {
     const { t } = useLanguage();
 
     const scrollToTop = () => {
+        // Try multiple methods to ensure scrolling happens
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+        document.body.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const downloadLink = 'https://wanlihsk.onelink.me/jqXw/t12b6ypg';
