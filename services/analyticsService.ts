@@ -154,10 +154,10 @@ export async function trackLanguageSelection(language: string): Promise<void> {
 
 /**
  * 记录下载按钮点击
- * - 记录点击平台 (ios, android, qr, zalo)
+ * - 记录点击平台 (ios, android, qr, zalo, mobile_banner)
  * - 绑定IP和国家信息
  */
-export async function trackDownloadClick(platform: 'ios' | 'android' | 'qr' | 'zalo'): Promise<void> {
+export async function trackDownloadClick(platform: 'ios' | 'android' | 'qr' | 'zalo' | 'mobile_banner'): Promise<void> {
     try {
         const { ip, country } = await getIpInfo();
         await supabase.from('download_clicks').insert({
@@ -207,7 +207,15 @@ export async function getAnalyticsSummary() {
             todayUniqueVisitors,
             totalUniqueUsers: totalUniqueUsers || 0,
             countryStats,
-            languageStats
+            languageStats,
+            downloadStats: {
+                totalClicks: await supabase.from('download_clicks').select('*', { count: 'exact', head: true }).then(r => r.count || 0),
+                uniqueDownloaders: await supabase.from('download_clicks').select('ip_address')
+                    .then(r => {
+                        if (r.error) return 0;
+                        return new Set(r.data.map(d => d.ip_address)).size;
+                    })
+            }
         };
     } catch (error) {
         console.warn('Failed to get analytics summary:', error);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { trackDownloadClick } from '../services/analyticsService';
 
 // Get the base URL for assets
 const baseUrl = import.meta.env.BASE_URL || '/';
@@ -30,10 +31,10 @@ export const BottomBanner: React.FC = () => {
             </button>
 
             {/* Content Container */}
-            <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between relative h-24 md:h-28">
+            <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex items-center justify-center gap-4 md:gap-16 relative h-24 md:h-28">
 
                 {/* Left Side: Logo + Text */}
-                <div className="flex items-center gap-4 z-10 h-full">
+                <div className="flex items-center gap-3 md:gap-4 z-10 h-full">
                     <div className="hidden md:block h-full aspect-square relative py-2">
                         <img src={logoUrl} alt="App Logo" className="w-full h-full object-contain" />
                     </div>
@@ -63,8 +64,10 @@ export const BottomBanner: React.FC = () => {
                         href="https://wanlihsk.onelink.me/jqXw/t12b6ypg"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="md:hidden bg-white text-blue-600 px-4 py-2 rounded-full font-bold text-sm shadow-md hover:bg-gray-50 transition-colors"
+                        onClick={() => trackDownloadClick('mobile_banner')}
+                        className="md:hidden bg-white text-blue-600 px-5 py-2.5 rounded-full font-bold text-sm shadow-md hover:bg-gray-50 transition-colors flex items-center gap-2"
                     >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
                         {t('downloadApp')}
                     </a>
                 </div>

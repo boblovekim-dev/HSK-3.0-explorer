@@ -701,8 +701,8 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
         return (
           <div className="space-y-4">
             {/* Grammar Promotion Banner */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-              <div className="flex-1 text-center sm:text-left">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 shadow-sm">
+              <div className="text-center sm:text-left max-w-lg">
                 <h3 className="text-lg font-bold text-blue-900 mb-1">
                   {t('grammarPromoTitle')}
                 </h3>

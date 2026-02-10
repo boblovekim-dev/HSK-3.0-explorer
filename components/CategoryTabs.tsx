@@ -20,6 +20,7 @@ export const CategoryTabs: React.FC<Props> = ({ currentCategory, onSelectCategor
         grammar: 'Grammar',
         tasks: 'Tasks',
         topics: 'Topics',
+        search: 'Search',
       },
       vi: {
         vocabulary: 'Từ',
@@ -27,6 +28,7 @@ export const CategoryTabs: React.FC<Props> = ({ currentCategory, onSelectCategor
         grammar: 'Ngữ',
         tasks: 'NV',
         topics: 'CĐề',
+        search: 'Tìm',
       },
       zh: {
         vocabulary: '词汇',
@@ -34,6 +36,7 @@ export const CategoryTabs: React.FC<Props> = ({ currentCategory, onSelectCategor
         grammar: '语法',
         tasks: '任务',
         topics: '话题',
+        search: '搜索',
       },
     };
     return mobileLabels[language]?.[category] || t(category);

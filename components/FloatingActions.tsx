@@ -86,7 +86,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({ icon, label, onClick, color
     );
 };
 
-export const FloatingActions: React.FC = () => {
+export const FloatingActions: React.FC<{ hideBackToTop?: boolean }> = ({ hideBackToTop }) => {
     const { t } = useLanguage();
 
     const scrollToTop = () => {
@@ -102,7 +102,8 @@ export const FloatingActions: React.FC = () => {
         }
     };
 
-    const downloadLink = 'https://wanlihsk.onelink.me/jqXw/t12b6ypg';
+    const iosDownloadLink = 'https://apps.apple.com/app/id6748439042';
+    const androidDownloadLink = 'https://play.google.com/store/apps/details?id=uni.app.UNIF0A631B';
     const qrCodeUrl = `${baseUrl}assets/app-qrcode.png`;
     const zaloQrUrl = `${baseUrl}assets/zalo-qr.png`;
 
@@ -120,8 +121,8 @@ export const FloatingActions: React.FC = () => {
 
                     <div className="flex gap-4 items-center">
                         <div className="flex flex-col gap-2 flex-1 min-w-0">
-                            <StoreButton type="google" href={downloadLink} />
-                            <StoreButton type="apple" href={downloadLink} />
+                            <StoreButton type="google" href={androidDownloadLink} />
+                            <StoreButton type="apple" href={iosDownloadLink} />
                         </div>
                         <div className="flex flex-col items-center gap-1 shrink-0">
                             <div className="p-1 border border-gray-100 rounded-lg shadow-sm">
@@ -161,11 +162,53 @@ export const FloatingActions: React.FC = () => {
             </ActionButton>
 
             {/* Back to Top */}
-            <ActionButton
-                icon={<ChevronUp size={24} />}
-                label={t('backToTop')}
-                onClick={scrollToTop}
-            />
+            {!hideBackToTop && (
+                <ActionButton
+                    icon={<ChevronUp size={24} />}
+                    label={t('backToTop')}
+                    onClick={scrollToTop}
+                />
+            )}
+        </div>
+    );
+};
+
+export const MobileCustomerServiceFab: React.FC = () => {
+    const { t } = useLanguage();
+    const [isOpen, setIsOpen] = React.useState(false);
+    const zaloQrUrl = `${baseUrl}assets/zalo-qr.png`;
+
+    return (
+        <div className="fixed bottom-28 right-4 z-50 md:hidden">
+            {/* Popover */}
+            {isOpen && (
+                <div className="absolute bottom-full right-0 mb-4 bg-white p-4 rounded-xl shadow-xl border border-gray-100 w-48 flex flex-col items-center gap-2 animate-in slide-in-from-bottom-2 fade-in">
+                    <h4 className="font-bold text-gray-800 text-sm whitespace-nowrap">{t('customerService')}</h4>
+                    <div className="p-1 border border-gray-100 rounded-lg shadow-sm">
+                        <img
+                            src={zaloQrUrl}
+                            alt="Zalo QR"
+                            className="w-32 h-32 object-contain"
+                        />
+                    </div>
+                    <span className="text-xs text-gray-500">{t('scanToAdd')}</span>
+                    {/* Close x */}
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="absolute -top-2 -right-2 bg-gray-100 rounded-full p-1 text-gray-500 shadow-sm"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                    </button>
+                </div>
+            )}
+
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-12 h-12 bg-white text-gray-700 rounded-full shadow-lg flex items-center justify-center border border-gray-100 active:scale-95 transition-transform"
+                aria-label={t('customerService')}
+            >
+                <Headphones size={24} />
+            </button>
         </div>
     );
 };
