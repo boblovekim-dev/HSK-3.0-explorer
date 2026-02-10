@@ -701,12 +701,12 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
         return (
           <div className="space-y-4">
             {/* Grammar Promotion Banner */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 shadow-sm">
-              <div className="text-center sm:text-left max-w-lg">
-                <h3 className="text-lg font-bold text-blue-900 mb-1">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-3 md:p-4 flex flex-row items-center justify-between gap-3 md:gap-8 shadow-sm">
+              <div className="flex-1 text-left min-w-0">
+                <h3 className="text-base md:text-lg font-bold text-blue-900 mb-1 leading-tight">
                   {t('grammarPromoTitle')}
                 </h3>
-                <p className="text-sm text-blue-700">
+                <p className="text-xs md:text-sm text-blue-700 leading-normal">
                   {t('grammarPromoDesc').split(/\[(?:Zalo|Zalo二维码)\]/).map((part, i, arr) => (
                     <React.Fragment key={i}>
                       {part}
@@ -719,7 +719,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
                 <img
                   src={`${import.meta.env.BASE_URL}assets/zalo-qr.png`}
                   alt="Zalo QR Code"
-                  className="w-24 h-24 object-contain"
+                  className="w-20 h-20 md:w-24 md:h-24 object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="%233b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><rect x="7" y="7" width="3" height="3"/><rect x="14" y="7" width="3" height="3"/><rect x="7" y="14" width="3" height="3"/><rect x="14" y="14" width="3" height="3"/></svg>';
                   }}
