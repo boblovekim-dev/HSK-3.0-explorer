@@ -176,39 +176,90 @@ export const FloatingActions: React.FC<{ hideBackToTop?: boolean }> = ({ hideBac
 export const MobileCustomerServiceFab: React.FC = () => {
     const { t } = useLanguage();
     const [isOpen, setIsOpen] = React.useState(false);
+    const [isDownloadOpen, setIsDownloadOpen] = React.useState(false);
     const zaloQrUrl = `${baseUrl}assets/zalo-qr.png`;
+    const qrCodeUrl = `${baseUrl}assets/app-qrcode.png`;
+    const iosDownloadLink = 'https://apps.apple.com/app/id6748439042';
+    const androidDownloadLink = 'https://play.google.com/store/apps/details?id=uni.app.UNIF0A631B';
+
+    // Close other popover when one opens
+    const toggleService = () => {
+        if (!isOpen) setIsDownloadOpen(false);
+        setIsOpen(!isOpen);
+    };
+
+    const toggleDownload = () => {
+        if (!isDownloadOpen) setIsOpen(false);
+        setIsDownloadOpen(!isDownloadOpen);
+    };
 
     return (
-        <div className="fixed bottom-28 right-4 z-50 md:hidden">
-            {/* Popover */}
-            {isOpen && (
-                <div className="absolute bottom-full right-0 mb-4 bg-white p-4 rounded-xl shadow-xl border border-gray-100 w-48 flex flex-col items-center gap-2 animate-in slide-in-from-bottom-2 fade-in">
-                    <h4 className="font-bold text-gray-800 text-sm whitespace-nowrap">{t('customerService')}</h4>
-                    <div className="p-1 border border-gray-100 rounded-lg shadow-sm">
-                        <img
-                            src={zaloQrUrl}
-                            alt="Zalo QR"
-                            className="w-32 h-32 object-contain"
-                        />
+        <div className="fixed bottom-28 right-4 z-50 md:hidden flex flex-col gap-4">
+            {/* Download FAB */}
+            <div className="relative">
+                {isDownloadOpen && (
+                    <div className="absolute bottom-full right-0 mb-4 bg-white p-4 rounded-xl shadow-xl border border-gray-100 w-[260px] flex flex-col gap-3 animate-in slide-in-from-bottom-2 fade-in">
+                        <div className="flex gap-3">
+                            <div className="flex flex-col gap-2 flex-1">
+                                <StoreButton type="google" href={androidDownloadLink} />
+                                <StoreButton type="apple" href={iosDownloadLink} />
+                            </div>
+                            <div className="flex flex-col items-center gap-1 shrink-0">
+                                <div className="p-1 border border-gray-100 rounded-lg shadow-sm">
+                                    <img src={qrCodeUrl} alt="Download QR" className="w-16 h-16 object-contain" />
+                                </div>
+                                <span className="text-[10px] text-gray-500 scale-90">{t('scanToDownload')}</span>
+                            </div>
+                        </div>
+                        {/* Close x */}
+                        <button
+                            onClick={() => setIsDownloadOpen(false)}
+                            className="absolute -top-2 -right-2 bg-gray-100 rounded-full p-1 text-gray-500 shadow-sm"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                        </button>
                     </div>
-                    <span className="text-xs text-gray-500">{t('scanToAdd')}</span>
-                    {/* Close x */}
-                    <button
-                        onClick={() => setIsOpen(false)}
-                        className="absolute -top-2 -right-2 bg-gray-100 rounded-full p-1 text-gray-500 shadow-sm"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-                    </button>
-                </div>
-            )}
+                )}
+                <button
+                    onClick={toggleDownload}
+                    className="w-12 h-12 bg-yellow-400 text-white rounded-full shadow-lg flex items-center justify-center border border-yellow-500 active:scale-95 transition-transform"
+                    aria-label={t('downloadApp')}
+                >
+                    <Smartphone size={24} />
+                </button>
+            </div>
 
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-12 h-12 bg-white text-gray-700 rounded-full shadow-lg flex items-center justify-center border border-gray-100 active:scale-95 transition-transform"
-                aria-label={t('customerService')}
-            >
-                <Headphones size={24} />
-            </button>
+            {/* Customer Service FAB */}
+            <div className="relative">
+                {isOpen && (
+                    <div className="absolute bottom-full right-0 mb-4 bg-white p-4 rounded-xl shadow-xl border border-gray-100 w-48 flex flex-col items-center gap-2 animate-in slide-in-from-bottom-2 fade-in">
+                        <h4 className="font-bold text-gray-800 text-sm whitespace-nowrap">{t('customerService')}</h4>
+                        <div className="p-1 border border-gray-100 rounded-lg shadow-sm">
+                            <img
+                                src={zaloQrUrl}
+                                alt="Zalo QR"
+                                className="w-32 h-32 object-contain"
+                            />
+                        </div>
+                        <span className="text-xs text-gray-500">{t('scanToAdd')}</span>
+                        {/* Close x */}
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="absolute -top-2 -right-2 bg-gray-100 rounded-full p-1 text-gray-500 shadow-sm"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                        </button>
+                    </div>
+                )}
+
+                <button
+                    onClick={toggleService}
+                    className="w-12 h-12 bg-white text-gray-700 rounded-full shadow-lg flex items-center justify-center border border-gray-100 active:scale-95 transition-transform"
+                    aria-label={t('customerService')}
+                >
+                    <Headphones size={24} />
+                </button>
+            </div>
         </div>
     );
 };
