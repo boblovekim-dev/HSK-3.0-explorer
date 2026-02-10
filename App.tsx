@@ -4,6 +4,7 @@ import { CategoryTabs } from './components/CategoryTabs';
 import { ContentList } from './components/ContentList';
 import { HomePage } from './components/HomePage';
 import { FloatingActions } from './components/FloatingActions';
+import { BottomBanner } from './components/BottomBanner';
 
 // ...
 
@@ -437,8 +438,13 @@ const App: React.FC = () => {
       </div>
 
       {/* Floating Download Widget */}
-      {/* Floating Actions Sidebar */}
-      <FloatingActions />
+      {/* Floating Actions Sidebar - Hidden on mobile, shown on md+ */}
+      <div className="hidden md:block">
+        <FloatingActions />
+      </div>
+
+      {/* Bottom Banner - Mobile responsive */}
+      <BottomBanner />
     </div>
   );
 };

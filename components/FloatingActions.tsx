@@ -90,10 +90,16 @@ export const FloatingActions: React.FC = () => {
     const { t } = useLanguage();
 
     const scrollToTop = () => {
-        // Try multiple methods to ensure scrolling happens
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
-        document.body.scrollTo({ top: 0, behavior: 'smooth' });
+        // Universal scroll reset
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+
+        // Find and reset any scrollable container (in case of overflow wrappers)
+        const scrollable = document.querySelector('.min-h-screen');
+        if (scrollable) {
+            scrollable.scrollTop = 0;
+        }
     };
 
     const downloadLink = 'https://wanlihsk.onelink.me/jqXw/t12b6ypg';

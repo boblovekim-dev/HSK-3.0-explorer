@@ -323,7 +323,10 @@ export const translations = {
     scanToAdd: "Scan to add Zalo",
     customerService: "Customer Service",
     backToTop: "Back to Top",
-    downloadApp: "Download App"
+    downloadApp: "Download App",
+    bannerTitle: "Prepare for HSK, one App is enough",
+    bannerSubtitle: "Scan to download immediately",
+    bannerScanText: "iOS & Android Scan to Download"
   },
   vi: {
     appTitle: "Khám phá HSK 3.0",
@@ -381,7 +384,10 @@ export const translations = {
     scanToAdd: "Quét mã thêm Zalo",
     customerService: "Chăm sóc khách hàng",
     backToTop: "Về đầu trang",
-    downloadApp: "Tải APP"
+    downloadApp: "Tải APP",
+    bannerTitle: "Luyện thi HSK, một App là đủ",
+    bannerSubtitle: "Quét mã tải ngay, bắt đầu hành trình học tập hiệu quả",
+    bannerScanText: "iOS & Android Quét mã tải xuống"
   },
   zh: {
     appTitle: "HSK 3.0 考纲探索",
@@ -439,6 +445,9 @@ export const translations = {
     scanToAdd: "扫码添加Zalo",
     customerService: "专属客服",
     backToTop: "返回顶部",
-    downloadApp: "下载APP"
+    downloadApp: "下载APP",
+    bannerTitle: "备考 HSK，一个万里 APP 就够了",
+    bannerSubtitle: "扫码立即下载，开启高效学习之旅",
+    bannerScanText: "iOS & Android 扫一扫下载"
   }
 };
