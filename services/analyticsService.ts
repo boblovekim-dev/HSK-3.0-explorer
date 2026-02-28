@@ -3,6 +3,27 @@
 
 import { supabase } from './supabaseClient';
 
+/**
+ * 获取北京时间 (UTC+8) 的 ISO 字符串
+ */
+function toBeijingISOString(date: Date = new Date()): string {
+    const beijingOffset = 8 * 60; // UTC+8 in minutes
+    const utcTime = date.getTime() + date.getTimezoneOffset() * 60000;
+    const beijingTime = new Date(utcTime + beijingOffset * 60000);
+    return beijingTime.toISOString().replace('Z', '+08:00');
+}
+
+/**
+ * 获取北京时间的日期字符串 (YYYY-MM-DD)
+ */
+function getBeijingDateString(): string {
+    const now = new Date();
+    const beijingOffset = 8 * 60;
+    const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
+    const beijingTime = new Date(utcTime + beijingOffset * 60000);
+    return beijingTime.toISOString().split('T')[0];
+}
+
 // 缓存IP信息，避免重复请求
 let cachedIpInfo: { ip: string; country: string; countryCode: string } | null = null;
 
@@ -43,7 +64,7 @@ export async function getIpInfo(): Promise<{ ip: string; country: string; countr
 export async function trackVisit(): Promise<void> {
     try {
         const { ip, country } = await getIpInfo();
-        const today = new Date().toISOString().split('T')[0];
+        const today = getBeijingDateString();
 
         // Upsert: 如果已存在则更新visit_count，否则插入新记录
         const { error } = await supabase
@@ -54,7 +75,7 @@ export async function trackVisit(): Promise<void> {
                     ip_address: ip,
                     country: country,
                     visit_count: 1,
-                    last_visit_at: new Date().toISOString()
+                    last_visit_at: toBeijingISOString()
                 },
                 {
                     onConflict: 'date,ip_address',
@@ -69,7 +90,7 @@ export async function trackVisit(): Promise<void> {
                     .from('daily_visits')
                     .update({
                         visit_count: supabase.rpc('increment_visit_count'),
-                        last_visit_at: new Date().toISOString()
+                        last_visit_at: toBeijingISOString()
                     })
                     .eq('date', today)
                     .eq('ip_address', ip);
@@ -88,7 +109,7 @@ export async function trackVisit(): Promise<void> {
  */
 export async function trackPageExposure(level: string, category: string): Promise<void> {
     try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getBeijingDateString();
 
         // 先尝试更新现有记录
         const { data: existing } = await supabase
@@ -137,7 +158,7 @@ export async function trackLanguageSelection(language: string): Promise<void> {
                 {
                     ip_address: ip,
                     language: language,
-                    updated_at: new Date().toISOString()
+                    updated_at: toBeijingISOString()
                 },
                 {
                     onConflict: 'ip_address',
@@ -176,7 +197,7 @@ export async function trackDownloadClick(platform: 'ios' | 'android' | 'qr' | 'z
  */
 export async function getAnalyticsSummary() {
     try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getBeijingDateString();
 
         // 今日访问人次
         const { data: dailyVisits } = await supabase

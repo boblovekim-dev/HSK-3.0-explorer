@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS daily_visits (
   ip_address VARCHAR(45) NOT NULL,
   country VARCHAR(100),
   visit_count INTEGER DEFAULT 1,
-  first_visit_at TIMESTAMP DEFAULT NOW(),
-  last_visit_at TIMESTAMP DEFAULT NOW(),
+  first_visit_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
+  last_visit_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
   UNIQUE(date, ip_address)
 );
 
@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS language_selections (
   id BIGSERIAL PRIMARY KEY,
   ip_address VARCHAR(45) NOT NULL UNIQUE,
   language VARCHAR(10) NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
+  updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 );
 
 -- 创建索引以优化查询
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS leads (
   country_code VARCHAR(10) NOT NULL DEFAULT '+86',
   learning_purpose TEXT,
   ip_address VARCHAR(45),
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 );
 
 -- 创建索引
@@ -97,7 +97,7 @@ CREATE TABLE download_clicks (
   ip_address VARCHAR(45) NOT NULL,
   country VARCHAR(100),
   platform VARCHAR(20) NOT NULL, -- 'ios', 'android', 'qr', 'zalo'
-  clicked_at TIMESTAMP DEFAULT NOW()
+  clicked_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 );
 
 -- 启用RLS
