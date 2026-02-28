@@ -1,20 +1,57 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# HSK 3.0 Syllabus Explorer (WanLi 萬里)
 
-# Run and deploy your AI Studio app
+![Homepage Preview](https://syllabus.wanlihsk.com/assets/wanli-logo-new.png)
 
-This contains everything you need to run your app locally.
+> **Live Preview:** [https://syllabus.wanlihsk.com/](https://syllabus.wanlihsk.com/)
 
-View your app in AI Studio: https://ai.studio/apps/drive/1Or50q_ezt1IvDnZfB2YFIxLSPSCXfzHX
+An interactive, responsive platform designed to help learners and educators explore the official vocabulary, characters, and grammar outlines for the modern Chinese Proficiency Test (HSK 3.0 Standard Syllabus). 
 
-## Run Locally
+## 🌟 Key Features
 
-**Prerequisites:**  Node.js
+* **Comprehensive Data:** Full coverage of HSK Levels 1–9, including vocabulary, characters, grammar points, topics, and tasks.
+* **Smart Search:** Instantly look up any word, character, or grammar structure.
+* **Multilingual UI:** Support for English, Vietnamese (Tiếng Việt), and Simplified Chinese (简体中文).
+* **Modern Interface:** A clean, engaging user experience built with React and Tailwind CSS.
+* **Analytics Tracking:** Built-in visitor and feature exposure tracking.
 
+## 📸 Screenshots
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. **Home Page**
+   ![Home Page](public/screenshots/Home.png)
+2. **Vocabulary Explorer**
+   ![Vocabulary Explorer](public/screenshots/Vocabulary.png)
+3. **Character Outline**
+   ![Character Outline](public/screenshots/Characters.png)
+4. **Grammar Points**
+   ![Grammar Points](public/screenshots/Grammar.png)
+5. **Topics & Tasks**
+   ![Topics](public/screenshots/Topics.png)
+   ![Tasks](public/screenshots/Task.png)
+
+## 🚀 Run Locally
+
+**Prerequisites:**  
+- [Node.js](https://nodejs.org/) (Version 18 or above recommended)
+
+1. **Clone and install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Database setup (Optional for Local UI Testing):**
+   Copy `.env.example` to `.env` or `.env.local` and set your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+## 🛠️ Tech Stack
+- Frontend: React 19, TypeScript, Tailwind CSS, Vite
+- Backend/Database: Supabase (PostgreSQL)
+- Icons: Lucide React

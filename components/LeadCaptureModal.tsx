@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, User, Phone, MessageSquare, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { submitLead } from '../services/leadService';
+import { getIpInfo } from '../services/analyticsService';
 
 interface LeadCaptureModalProps {
     isOpen: boolean;
@@ -11,35 +12,49 @@ interface LeadCaptureModalProps {
 
 // 常用国家区号
 const countryCodes = [
-    { code: '+86', country: '中国', flag: '🇨🇳' },
-    { code: '+1', country: 'USA/Canada', flag: '🇺🇸' },
-    { code: '+84', country: 'Việt Nam', flag: '🇻🇳' },
-    { code: '+44', country: 'UK', flag: '🇬🇧' },
-    { code: '+81', country: '日本', flag: '🇯🇵' },
-    { code: '+82', country: '한국', flag: '🇰🇷' },
-    { code: '+65', country: 'Singapore', flag: '🇸🇬' },
-    { code: '+60', country: 'Malaysia', flag: '🇲🇾' },
-    { code: '+62', country: 'Indonesia', flag: '🇮🇩' },
-    { code: '+66', country: 'Thailand', flag: '🇹🇭' },
-    { code: '+63', country: 'Philippines', flag: '🇵🇭' },
-    { code: '+91', country: 'India', flag: '🇮🇳' },
-    { code: '+49', country: 'Germany', flag: '🇩🇪' },
-    { code: '+33', country: 'France', flag: '🇫🇷' },
-    { code: '+39', country: 'Italy', flag: '🇮🇹' },
-    { code: '+34', country: 'Spain', flag: '🇪🇸' },
-    { code: '+7', country: 'Russia', flag: '🇷🇺' },
-    { code: '+55', country: 'Brazil', flag: '🇧🇷' },
-    { code: '+61', country: 'Australia', flag: '🇦🇺' },
+    { code: '+86', country: '中国', flag: '🇨🇳', iso: 'CN' },
+    { code: '+1', country: 'USA/Canada', flag: '🇺🇸', iso: 'US' },
+    { code: '+84', country: 'Việt Nam', flag: '🇻🇳', iso: 'VN' },
+    { code: '+44', country: 'UK', flag: '🇬🇧', iso: 'GB' },
+    { code: '+81', country: '日本', flag: '🇯🇵', iso: 'JP' },
+    { code: '+82', country: '한국', flag: '🇰🇷', iso: 'KR' },
+    { code: '+65', country: 'Singapore', flag: '🇸🇬', iso: 'SG' },
+    { code: '+60', country: 'Malaysia', flag: '🇲🇾', iso: 'MY' },
+    { code: '+62', country: 'Indonesia', flag: '🇮🇩', iso: 'ID' },
+    { code: '+66', country: 'Thailand', flag: '🇹🇭', iso: 'TH' },
+    { code: '+63', country: 'Philippines', flag: '🇵🇭', iso: 'PH' },
+    { code: '+91', country: 'India', flag: '🇮🇳', iso: 'IN' },
+    { code: '+49', country: 'Germany', flag: '🇩🇪', iso: 'DE' },
+    { code: '+33', country: 'France', flag: '🇫🇷', iso: 'FR' },
+    { code: '+39', country: 'Italy', flag: '🇮🇹', iso: 'IT' },
+    { code: '+34', country: 'Spain', flag: '🇪🇸', iso: 'ES' },
+    { code: '+7', country: 'Russia', flag: '🇷🇺', iso: 'RU' },
+    { code: '+55', country: 'Brazil', flag: '🇧🇷', iso: 'BR' },
+    { code: '+61', country: 'Australia', flag: '🇦🇺', iso: 'AU' },
 ];
 
 export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose, onSuccess }) => {
     const { t, language } = useLanguage();
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
-    const [countryCode, setCountryCode] = useState('+86');
+    const [countryCode, setCountryCode] = useState('+84');
     const [learningPurpose, setLearningPurpose] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+
+    // 自动匹配IP对应的国家区号
+    useEffect(() => {
+        if (isOpen) {
+            getIpInfo().then((info) => {
+                if (info && info.countryCode) {
+                    const matched = countryCodes.find(c => c.iso === info.countryCode);
+                    if (matched) {
+                        setCountryCode(matched.code);
+                    }
+                }
+            }).catch(e => console.warn('IP auto-match failed:', e));
+        }
+    }, [isOpen]);
 
     const getModalTitle = () => {
         switch (language) {

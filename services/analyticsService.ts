@@ -4,24 +4,25 @@
 import { supabase } from './supabaseClient';
 
 // 缓存IP信息，避免重复请求
-let cachedIpInfo: { ip: string; country: string } | null = null;
+let cachedIpInfo: { ip: string; country: string; countryCode: string } | null = null;
 
 /**
  * 获取用户IP和国家信息
  */
-async function getIpInfo(): Promise<{ ip: string; country: string }> {
+export async function getIpInfo(): Promise<{ ip: string; country: string; countryCode: string }> {
     if (cachedIpInfo) {
         return cachedIpInfo;
     }
 
     try {
-        // 使用免费的IP API获取IP和地理位置
-        const response = await fetch('https://ip-api.com/json/?fields=query,country');
+        // 使用免费且支持HTTPS的 geojs.io 获取IP和地理位置
+        const response = await fetch('https://get.geojs.io/v1/ip/geo.json');
         if (response.ok) {
             const data = await response.json();
             cachedIpInfo = {
-                ip: data.query || 'unknown',
-                country: data.country || 'Unknown'
+                ip: data.ip || 'unknown',
+                country: data.country || 'Unknown',
+                countryCode: data.country_code || 'XX'
             };
             return cachedIpInfo;
         }
@@ -30,7 +31,7 @@ async function getIpInfo(): Promise<{ ip: string; country: string }> {
     }
 
     // Fallback
-    cachedIpInfo = { ip: 'unknown', country: 'Unknown' };
+    cachedIpInfo = { ip: 'unknown', country: 'Unknown', countryCode: 'XX' };
     return cachedIpInfo;
 }
 
