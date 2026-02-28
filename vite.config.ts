@@ -21,6 +21,18 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, '.'),
       }
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom'],
+            'ui-icons': ['lucide-react'],
+            'supabase': ['@supabase/supabase-js'],
+            'hanzi': ['hanzi-writer']
+          }
+        }
+      }
     }
   };
 });

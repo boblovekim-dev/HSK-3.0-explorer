@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { LevelSelector } from './components/LevelSelector';
-import { CategoryTabs } from './components/CategoryTabs';
-import { ContentList } from './components/ContentList';
-import { HomePage } from './components/HomePage';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { FloatingActions, MobileCustomerServiceFab } from './components/FloatingActions';
 import { BottomBanner } from './components/BottomBanner';
+
+const HomePage = lazy(() => import('./components/HomePage').then(module => ({ default: module.HomePage })));
+const LevelSelector = lazy(() => import('./components/LevelSelector').then(module => ({ default: module.LevelSelector })));
+const CategoryTabs = lazy(() => import('./components/CategoryTabs').then(module => ({ default: module.CategoryTabs })));
+const ContentList = lazy(() => import('./components/ContentList').then(module => ({ default: module.ContentList })));
+
 
 // ...
 
@@ -219,15 +221,17 @@ const App: React.FC = () => {
 
       {/* Sidebar: Only show in Explorer Mode */}
       {view === 'explorer' && (
-        <LevelSelector
-          currentLevel={currentLevel}
-          onSelectLevel={(l) => {
-            setIsSearching(false);
-            setSearchQuery('');
-            setCurrentLevel(l);
-            updateUrl('explorer', l, currentCategory);
-          }}
-        />
+        <Suspense fallback={<div className="w-full md:w-64 bg-white md:h-screen border-b md:border-b-0 md:border-r border-gray-200 flex items-center justify-center shrink-0"><div className="animate-spin rounded-full h-8 w-8 border-2 border-hsk-red border-t-transparent"></div></div>}>
+          <LevelSelector
+            currentLevel={currentLevel}
+            onSelectLevel={(l) => {
+              setIsSearching(false);
+              setSearchQuery('');
+              setCurrentLevel(l);
+              updateUrl('explorer', l, currentCategory);
+            }}
+          />
+        </Suspense>
       )}
 
       {/* Main Content Area */}
@@ -330,111 +334,113 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        {view === 'home' ? (
-          <HomePage
-            onNavigate={navigateToExplorer}
-            onSearch={handleHeroSearch}
-          />
-        ) : (
-          <main className="flex-1 overflow-y-auto w-full relative">
-            <div className="p-4 md:p-8 max-w-6xl mx-auto">
+        <Suspense fallback={<div className="flex-1 flex items-center justify-center h-full"><div className="animate-spin rounded-full h-10 w-10 border-2 border-hsk-red border-t-transparent"></div></div>}>
+          {view === 'home' ? (
+            <HomePage
+              onNavigate={navigateToExplorer}
+              onSearch={handleHeroSearch}
+            />
+          ) : (
+            <main className="flex-1 overflow-y-auto w-full relative">
+              <div className="p-4 md:p-8 max-w-6xl mx-auto">
 
-              {/* Header (Only if not searching) - Hidden on mobile */}
-              {!isSearching && (
-                <div className="mb-4 md:mb-8 text-center md:text-left flex-col md:flex-row justify-between items-end hidden md:flex">
-                  <div>
-                    <h2 className="text-3xl font-bold text-ink mb-2 font-serif">
-                      {currentLevel === 'all' ? t('allLevels') : `HSK ${t('level')} ${currentLevel}`}
-                    </h2>
-                    <p className="text-gray-500">{t('heroDesc')}</p>
+                {/* Header (Only if not searching) - Hidden on mobile */}
+                {!isSearching && (
+                  <div className="mb-4 md:mb-8 text-center md:text-left flex-col md:flex-row justify-between items-end hidden md:flex">
+                    <div>
+                      <h2 className="text-3xl font-bold text-ink mb-2 font-serif">
+                        {currentLevel === 'all' ? t('allLevels') : `HSK ${t('level')} ${currentLevel}`}
+                      </h2>
+                      <p className="text-gray-500">{t('heroDesc')}</p>
+                    </div>
+
                   </div>
+                )}
 
-                </div>
-              )}
-
-              {/* Controls (Category Selection) */}
-              {!isSearching && (
-                <CategoryTabs
-                  currentCategory={currentCategory}
-                  onSelectCategory={(c) => {
-                    setCurrentCategory(c);
-                    updateUrl('explorer', currentLevel, c);
-                  }}
-                />
-              )}
-
-              {/* Search Header & Tabs */}
-              {isSearching && (
-                <div className="mb-8">
-                  <div className="flex flex-col gap-4">
-                    <h2 className="text-2xl font-bold text-ink">{t('searchResults')}</h2>
-
-                    {/* Search Category Tabs */}
-                    {data?.items && data.items.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => setSearchCategory('all')}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${searchCategory === 'all'
-                            ? 'bg-ink text-white shadow-md'
-                            : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100 hover:border-gray-200'
-                            }`}
-                        >
-                          <Search size={16} />
-                          {t('allResults')}
-                        </button>
-                        {Array.from(new Set(data.items.map(item => item.section).filter(Boolean)))
-                          .sort()
-                          .map((catString) => {
-                            const cat = catString as Category;
-                            const { label, icon } = getCategoryDisplay(cat);
-                            return (
-                              <button
-                                key={cat}
-                                onClick={() => setSearchCategory(cat)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${searchCategory === cat
-                                  ? 'bg-ink text-white shadow-md'
-                                  : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100 hover:border-gray-200'
-                                  }`}
-                              >
-                                {icon}
-                                {label}
-                              </button>
-                            );
-                          })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Content */}
-              {loading.status === 'error' ? (
-                <div className="max-w-xl mx-auto text-center p-8 bg-red-50 rounded-2xl border border-red-100">
-                  <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-red-700 mb-2">{t('loadingError')}</h3>
-                  <p className="text-red-600 mb-6">{loading.message}</p>
-                  <button
-                    onClick={() => loadData(true)}
-                    className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm"
-                  >
-                    {t('tryAgain')}
-                  </button>
-                </div>
-              ) : (
-                <ErrorBoundary>
-                  <ContentList
-                    data={isSearching && searchCategory !== 'all' && data ? { ...data, items: data.items.filter(i => i.section === searchCategory) } : data}
-                    category={isSearching ? 'search' : currentCategory}
-                    level={currentLevel}
-                    isLoading={loading.status === 'loading'}
-                    onRefresh={() => loadData(true)}
+                {/* Controls (Category Selection) */}
+                {!isSearching && (
+                  <CategoryTabs
+                    currentCategory={currentCategory}
+                    onSelectCategory={(c) => {
+                      setCurrentCategory(c);
+                      updateUrl('explorer', currentLevel, c);
+                    }}
                   />
-                </ErrorBoundary>
-              )}
+                )}
 
-            </div>
-          </main>
-        )}
+                {/* Search Header & Tabs */}
+                {isSearching && (
+                  <div className="mb-8">
+                    <div className="flex flex-col gap-4">
+                      <h2 className="text-2xl font-bold text-ink">{t('searchResults')}</h2>
+
+                      {/* Search Category Tabs */}
+                      {data?.items && data.items.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() => setSearchCategory('all')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${searchCategory === 'all'
+                              ? 'bg-ink text-white shadow-md'
+                              : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100 hover:border-gray-200'
+                              }`}
+                          >
+                            <Search size={16} />
+                            {t('allResults')}
+                          </button>
+                          {Array.from(new Set(data.items.map(item => item.section).filter(Boolean)))
+                            .sort()
+                            .map((catString) => {
+                              const cat = catString as Category;
+                              const { label, icon } = getCategoryDisplay(cat);
+                              return (
+                                <button
+                                  key={cat}
+                                  onClick={() => setSearchCategory(cat)}
+                                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${searchCategory === cat
+                                    ? 'bg-ink text-white shadow-md'
+                                    : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100 hover:border-gray-200'
+                                    }`}
+                                >
+                                  {icon}
+                                  {label}
+                                </button>
+                              );
+                            })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Content */}
+                {loading.status === 'error' ? (
+                  <div className="max-w-xl mx-auto text-center p-8 bg-red-50 rounded-2xl border border-red-100">
+                    <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-red-700 mb-2">{t('loadingError')}</h3>
+                    <p className="text-red-600 mb-6">{loading.message}</p>
+                    <button
+                      onClick={() => loadData(true)}
+                      className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm"
+                    >
+                      {t('tryAgain')}
+                    </button>
+                  </div>
+                ) : (
+                  <ErrorBoundary>
+                    <ContentList
+                      data={isSearching && searchCategory !== 'all' && data ? { ...data, items: data.items.filter(i => i.section === searchCategory) } : data}
+                      category={isSearching ? 'search' : currentCategory}
+                      level={currentLevel}
+                      isLoading={loading.status === 'loading'}
+                      onRefresh={() => loadData(true)}
+                    />
+                  </ErrorBoundary>
+                )}
+
+              </div>
+            </main>
+          )}
+        </Suspense>
       </div>
 
       {/* Floating Download Widget */}
