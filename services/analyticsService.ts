@@ -5,22 +5,18 @@ import { supabase } from './supabaseClient';
 
 /**
  * 获取北京时间 (UTC+8) 的 ISO 字符串
+ * 直接在 UTC 时间上加 8 小时，保持标准 ISO 格式
  */
 function toBeijingISOString(date: Date = new Date()): string {
-    const beijingOffset = 8 * 60; // UTC+8 in minutes
-    const utcTime = date.getTime() + date.getTimezoneOffset() * 60000;
-    const beijingTime = new Date(utcTime + beijingOffset * 60000);
-    return beijingTime.toISOString().replace('Z', '+08:00');
+    const beijingTime = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+    return beijingTime.toISOString();
 }
 
 /**
  * 获取北京时间的日期字符串 (YYYY-MM-DD)
  */
 function getBeijingDateString(): string {
-    const now = new Date();
-    const beijingOffset = 8 * 60;
-    const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
-    const beijingTime = new Date(utcTime + beijingOffset * 60000);
+    const beijingTime = new Date(Date.now() + 8 * 60 * 60 * 1000);
     return beijingTime.toISOString().split('T')[0];
 }
 
