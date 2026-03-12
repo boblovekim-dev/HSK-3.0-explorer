@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { X, User, Phone, MessageSquare, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Users, Copy, Check, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { submitLead } from '../services/leadService';
-import { getIpInfo } from '../services/analyticsService';
+import { markGroupLinkClicked } from '../services/leadService';
+
+const GROUP_LINK = 'https://zalo.me/g/ojubrw550';
 
 interface LeadCaptureModalProps {
     isOpen: boolean;
@@ -10,172 +11,73 @@ interface LeadCaptureModalProps {
     onSuccess: () => void;
 }
 
-// 常用国家区号
-const countryCodes = [
-    { code: '+86', country: '中国', flag: '🇨🇳', iso: 'CN' },
-    { code: '+1', country: 'USA/Canada', flag: '🇺🇸', iso: 'US' },
-    { code: '+84', country: 'Việt Nam', flag: '🇻🇳', iso: 'VN' },
-    { code: '+44', country: 'UK', flag: '🇬🇧', iso: 'GB' },
-    { code: '+81', country: '日本', flag: '🇯🇵', iso: 'JP' },
-    { code: '+82', country: '한국', flag: '🇰🇷', iso: 'KR' },
-    { code: '+65', country: 'Singapore', flag: '🇸🇬', iso: 'SG' },
-    { code: '+60', country: 'Malaysia', flag: '🇲🇾', iso: 'MY' },
-    { code: '+62', country: 'Indonesia', flag: '🇮🇩', iso: 'ID' },
-    { code: '+66', country: 'Thailand', flag: '🇹🇭', iso: 'TH' },
-    { code: '+63', country: 'Philippines', flag: '🇵🇭', iso: 'PH' },
-    { code: '+91', country: 'India', flag: '🇮🇳', iso: 'IN' },
-    { code: '+49', country: 'Germany', flag: '🇩🇪', iso: 'DE' },
-    { code: '+33', country: 'France', flag: '🇫🇷', iso: 'FR' },
-    { code: '+39', country: 'Italy', flag: '🇮🇹', iso: 'IT' },
-    { code: '+34', country: 'Spain', flag: '🇪🇸', iso: 'ES' },
-    { code: '+7', country: 'Russia', flag: '🇷🇺', iso: 'RU' },
-    { code: '+55', country: 'Brazil', flag: '🇧🇷', iso: 'BR' },
-    { code: '+61', country: 'Australia', flag: '🇦🇺', iso: 'AU' },
-];
+const texts = {
+    zh: {
+        title: '加入学习群解锁全部内容',
+        subtitle: '加入我们的Zalo学习群，即可免费获取全部HSK备考资料',
+        instruction: '点击下方链接加入Zalo学习群，加群后刷新页面即可解锁全部内容',
+        link_label: '加群链接',
+        copy: '复制',
+        copied: '已复制！',
+        join: '点击加入学习群',
+        after_click_title: '已点击加群链接！',
+        after_click_desc: '请加入Zalo群组后，点击下方按钮刷新页面，即可解锁全部内容',
+        refresh: '刷新解锁',
+        close: '稍后再说',
+    },
+    vi: {
+        title: 'Tham gia nhóm để mở khóa nội dung',
+        subtitle: 'Tham gia nhóm Zalo để truy cập miễn phí toàn bộ tài liệu luyện thi HSK',
+        instruction: 'Nhấn vào đường link bên dưới để tham gia nhóm Zalo. Sau khi vào nhóm, làm mới trang để mở khóa toàn bộ nội dung',
+        link_label: 'Link tham gia nhóm',
+        copy: 'Sao chép',
+        copied: 'Đã sao chép!',
+        join: 'Nhấn để tham gia nhóm',
+        after_click_title: 'Đã nhấn vào link!',
+        after_click_desc: 'Hãy tham gia nhóm Zalo, sau đó nhấn nút bên dưới để làm mới trang và mở khóa toàn bộ nội dung',
+        refresh: 'Làm mới & mở khóa',
+        close: 'Để sau',
+    },
+    en: {
+        title: 'Join the Study Group to Unlock',
+        subtitle: 'Join our Zalo study group to access all HSK learning materials for free',
+        instruction: 'Click the link below to join the Zalo study group. After joining, refresh the page to unlock all content',
+        link_label: 'Group join link',
+        copy: 'Copy',
+        copied: 'Copied!',
+        join: 'Click to Join Group',
+        after_click_title: 'Link Clicked!',
+        after_click_desc: 'After joining the Zalo group, click the button below to refresh and unlock all content',
+        refresh: 'Refresh & Unlock',
+        close: 'Maybe later',
+    },
+};
 
-export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose, onSuccess }) => {
-    const { t, language } = useLanguage();
-    const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [countryCode, setCountryCode] = useState('+84');
-    const [learningPurpose, setLearningPurpose] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
+export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose }) => {
+    const { language } = useLanguage();
+    const [copied, setCopied] = useState(false);
+    const [hasClicked, setHasClicked] = useState(false);
 
-    // 自动匹配IP对应的国家区号
-    useEffect(() => {
-        if (isOpen) {
-            getIpInfo().then((info) => {
-                if (info && info.countryCode) {
-                    const matched = countryCodes.find(c => c.iso === info.countryCode);
-                    if (matched) {
-                        setCountryCode(matched.code);
-                    }
-                }
-            }).catch(e => console.warn('IP auto-match failed:', e));
-        }
-    }, [isOpen]);
+    const t = texts[language as keyof typeof texts] ?? texts.vi;
 
-    const getModalTitle = () => {
-        switch (language) {
-            case 'zh': return '解锁全部内容';
-            case 'vi': return 'Mở khóa tất cả nội dung';
-            default: return 'Unlock All Content';
+    const handleLinkClick = () => {
+        markGroupLinkClicked();
+        setHasClicked(true);
+        window.open(GROUP_LINK, '_blank');
+    };
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(GROUP_LINK);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // fallback: select text
         }
     };
 
-    const getModalSubtitle = () => {
-        switch (language) {
-            case 'zh': return '填写以下信息即可免费查看全部HSK学习资料';
-            case 'vi': return 'Điền thông tin bên dưới để xem miễn phí tất cả tài liệu HSK';
-            default: return 'Fill in the form below to access all HSK learning materials for free';
-        }
-    };
-
-    const getNamePlaceholder = () => {
-        switch (language) {
-            case 'zh': return '怎么称呼您？';
-            case 'vi': return 'Tên của bạn?';
-            default: return 'Your name?';
-        }
-    };
-
-    const getPhonePlaceholder = () => {
-        switch (language) {
-            case 'zh': return '手机号码';
-            case 'vi': return 'Số điện thoại';
-            default: return 'Phone number';
-        }
-    };
-
-    const getPurposePlaceholder = () => {
-        switch (language) {
-            case 'zh': return '学中文的目的是？（选填）';
-            case 'vi': return 'Mục đích học tiếng Trung? (Tùy chọn)';
-            default: return 'Why are you learning Chinese? (Optional)';
-        }
-    };
-
-    const getSubmitText = () => {
-        switch (language) {
-            case 'zh': return '立即解锁';
-            case 'vi': return 'Mở khóa ngay';
-            default: return 'Unlock Now';
-        }
-    };
-
-    const getSkipText = () => {
-        switch (language) {
-            case 'zh': return '稍后再说';
-            case 'vi': return 'Để sau';
-            default: return 'Maybe later';
-        }
-    };
-
-    // 验证手机号格式 - 至少6位数字
-    const validatePhone = (phoneNumber: string): boolean => {
-        const digitsOnly = phoneNumber.replace(/\D/g, '');
-        return digitsOnly.length >= 6 && digitsOnly.length <= 15;
-    };
-
-    const getPhoneError = () => {
-        switch (language) {
-            case 'zh': return '请输入有效的手机号码（至少6位数字）';
-            case 'vi': return 'Vui lòng nhập số điện thoại hợp lệ (ít nhất 6 chữ số)';
-            default: return 'Please enter a valid phone number (at least 6 digits)';
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-
-        // 验证称呼
-        if (!name.trim()) {
-            setError(language === 'zh' ? '请输入您的称呼' : language === 'vi' ? 'Vui lòng nhập tên' : 'Please enter your name');
-            return;
-        }
-
-        // 验证称呼长度
-        if (name.trim().length < 2) {
-            setError(language === 'zh' ? '称呼至少需要2个字符' : language === 'vi' ? 'Tên phải có ít nhất 2 ký tự' : 'Name must be at least 2 characters');
-            return;
-        }
-
-        // 验证手机号非空
-        if (!phone.trim()) {
-            setError(language === 'zh' ? '请输入手机号码' : language === 'vi' ? 'Vui lòng nhập số điện thoại' : 'Please enter your phone number');
-            return;
-        }
-
-        // 验证手机号格式
-        if (!validatePhone(phone)) {
-            setError(getPhoneError());
-            return;
-        }
-
-        setIsSubmitting(true);
-
-        const result = await submitLead({
-            name: name.trim(),
-            phone: phone.trim(),
-            country_code: countryCode,
-            learning_purpose: learningPurpose.trim() || undefined
-        });
-
-        setIsSubmitting(false);
-
-        if (result.success) {
-            onSuccess();
-        } else {
-            // 提交失败时显示错误，不自动解锁
-            setError(language === 'zh' ? '提交失败，请重试' : language === 'vi' ? 'Gửi thất bại, vui lòng thử lại' : 'Submission failed, please try again');
-        }
-    };
-
-    const handleClose = () => {
-        // 只关闭弹窗，不解锁
-        onClose();
+    const handleRefresh = () => {
+        window.location.reload();
     };
 
     if (!isOpen) return null;
@@ -185,110 +87,102 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onCl
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                onClick={handleClose}
+                onClick={onClose}
             />
 
             {/* Modal */}
             <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
                 {/* Close button */}
                 <button
-                    onClick={handleClose}
-                    className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors z-10"
+                    onClick={onClose}
+                    className="absolute top-4 right-4 p-2 text-white/70 hover:text-white rounded-full hover:bg-white/20 transition-colors z-10"
                 >
                     <X size={20} />
                 </button>
 
                 {/* Header */}
                 <div className="bg-gradient-to-r from-hsk-red to-red-600 px-6 pt-8 pb-6 text-white">
-                    <h2 className="text-2xl font-bold mb-2">{getModalTitle()}</h2>
-                    <p className="text-white/90 text-sm">{getModalSubtitle()}</p>
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                            <Users size={20} />
+                        </div>
+                        <h2 className="text-xl font-bold leading-tight">{t.title}</h2>
+                    </div>
+                    <p className="text-white/90 text-sm">{t.subtitle}</p>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {error && (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                            {error}
+                {/* Content */}
+                <div className="p-6 space-y-5">
+                    {!hasClicked ? (
+                        <>
+                            <p className="text-gray-600 text-sm">{t.instruction}</p>
+
+                            {/* Link card */}
+                            <div className="border border-gray-200 rounded-xl overflow-hidden">
+                                <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                    <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t.link_label}</span>
+                                </div>
+                                <div className="flex items-center gap-2 p-3">
+                                    <a
+                                        href={GROUP_LINK}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={handleLinkClick}
+                                        className="flex-1 text-hsk-red text-sm font-medium hover:underline truncate flex items-center gap-1.5 min-w-0"
+                                    >
+                                        <ExternalLink size={14} className="flex-shrink-0" />
+                                        <span className="truncate">{GROUP_LINK}</span>
+                                    </a>
+                                    <button
+                                        onClick={handleCopy}
+                                        className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                            copied
+                                                ? 'bg-green-100 text-green-600'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        }`}
+                                    >
+                                        {copied ? <Check size={13} /> : <Copy size={13} />}
+                                        {copied ? t.copied : t.copy}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Main join button */}
+                            <button
+                                onClick={handleLinkClick}
+                                className="w-full py-3 bg-gradient-to-r from-hsk-red to-red-600 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transform hover:scale-105"
+                            >
+                                <ExternalLink size={18} />
+                                {t.join}
+                            </button>
+
+                            {/* Skip */}
+                            <button
+                                onClick={onClose}
+                                className="w-full py-2 text-gray-400 text-sm hover:text-gray-600 transition-colors"
+                            >
+                                {t.close}
+                            </button>
+                        </>
+                    ) : (
+                        /* After clicking the link */
+                        <div className="text-center py-2 space-y-4">
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                                <Check size={32} className="text-green-500" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-800 mb-2">{t.after_click_title}</h3>
+                                <p className="text-gray-500 text-sm leading-relaxed">{t.after_click_desc}</p>
+                            </div>
+                            <button
+                                onClick={handleRefresh}
+                                className="w-full py-3 bg-gradient-to-r from-hsk-red to-red-600 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg hover:shadow-xl"
+                            >
+                                {t.refresh}
+                            </button>
                         </div>
                     )}
-
-                    {/* Name */}
-                    <div className="relative">
-                        <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder={getNamePlaceholder()}
-                            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-hsk-red/20 focus:border-hsk-red transition-all text-gray-700 placeholder-gray-400"
-                        />
-                    </div>
-
-                    {/* Phone with Country Code */}
-                    <div className="flex gap-2">
-                        <div className="relative w-28 flex-shrink-0">
-                            <select
-                                value={countryCode}
-                                onChange={(e) => setCountryCode(e.target.value)}
-                                className="w-full appearance-none pl-3 pr-8 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-hsk-red/20 focus:border-hsk-red transition-all text-gray-700 bg-white cursor-pointer"
-                            >
-                                {countryCodes.map((item) => (
-                                    <option key={item.code} value={item.code}>
-                                        {item.flag} {item.code}
-                                    </option>
-                                ))}
-                            </select>
-                            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                        </div>
-                        <div className="relative flex-1">
-                            <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="tel"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                placeholder={getPhonePlaceholder()}
-                                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-hsk-red/20 focus:border-hsk-red transition-all text-gray-700 placeholder-gray-400"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Learning Purpose (Optional) */}
-                    <div className="relative">
-                        <MessageSquare size={18} className="absolute left-3 top-3 text-gray-400" />
-                        <textarea
-                            value={learningPurpose}
-                            onChange={(e) => setLearningPurpose(e.target.value)}
-                            placeholder={getPurposePlaceholder()}
-                            rows={2}
-                            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-hsk-red/20 focus:border-hsk-red transition-all text-gray-700 placeholder-gray-400 resize-none"
-                        />
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full py-3 bg-gradient-to-r from-hsk-red to-red-600 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {isSubmitting ? (
-                            <span className="flex items-center justify-center gap-2">
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                Loading...
-                            </span>
-                        ) : (
-                            getSubmitText()
-                        )}
-                    </button>
-
-                    {/* Skip Link */}
-                    <button
-                        type="button"
-                        onClick={handleClose}
-                        className="w-full py-2 text-gray-400 text-sm hover:text-gray-600 transition-colors"
-                    >
-                        {getSkipText()}
-                    </button>
-                </form>
+                </div>
             </div>
         </div>
     );

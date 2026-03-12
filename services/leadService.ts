@@ -4,6 +4,7 @@
 import { supabase } from './supabaseClient';
 
 const LEAD_SUBMITTED_KEY = 'hsk_lead_submitted';
+const GROUP_CLICKED_KEY = 'hsk_group_link_clicked';
 
 export interface LeadData {
     name: string;
@@ -21,6 +22,28 @@ export function hasSubmittedLead(): boolean {
         return localStorage.getItem(LEAD_SUBMITTED_KEY) === 'true';
     } catch {
         return false;
+    }
+}
+
+/**
+ * 检查用户是否已点击入群链接
+ */
+export function hasClickedGroupLink(): boolean {
+    try {
+        return localStorage.getItem(GROUP_CLICKED_KEY) === 'true';
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * 标记用户已点击入群链接
+ */
+export function markGroupLinkClicked(): void {
+    try {
+        localStorage.setItem(GROUP_CLICKED_KEY, 'true');
+    } catch {
+        console.warn('Failed to save group click status to localStorage');
     }
 }
 

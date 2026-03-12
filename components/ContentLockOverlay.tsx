@@ -19,17 +19,17 @@ export const ContentLockOverlay: React.FC<ContentLockOverlayProps> = ({ onUnlock
 
     const getDescription = () => {
         switch (language) {
-            case 'zh': return '填写简单信息即可免费查看全部内容';
-            case 'vi': return 'Điền thông tin đơn giản để xem tất cả nội dung miễn phí';
-            default: return 'Fill in a simple form to view all content for free';
+            case 'zh': return '加入我们的Zalo学习群，即可免费查看全部内容';
+            case 'vi': return 'Tham gia nhóm Zalo học tiếng Trung để xem miễn phí toàn bộ nội dung';
+            default: return 'Join our Zalo study group to access all content for free';
         }
     };
 
     const getButtonText = () => {
         switch (language) {
-            case 'zh': return '立即解锁';
-            case 'vi': return 'Mở khóa ngay';
-            default: return 'Unlock Now';
+            case 'zh': return '加入学习群解锁';
+            case 'vi': return 'Tham gia nhóm & mở khóa';
+            default: return 'Join Group & Unlock';
         }
     };
 

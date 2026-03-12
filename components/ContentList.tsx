@@ -8,7 +8,7 @@ import { ttsService } from '../services/ttsService';
 import { TranslatableText } from './TranslatableText';
 import { ContentLockOverlay } from './ContentLockOverlay';
 import { LeadCaptureModal } from './LeadCaptureModal';
-import { hasSubmittedLead } from '../services/leadService';
+import { hasSubmittedLead, hasClickedGroupLink } from '../services/leadService';
 
 interface Props {
   data: SyllabusResponse | null;
@@ -129,7 +129,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
   const [charType, setCharType] = useState<'reading' | 'writing'>('reading');
 
   // Lead capture & content lock state
-  const [isContentUnlocked, setIsContentUnlocked] = useState(() => hasSubmittedLead());
+  const [isContentUnlocked, setIsContentUnlocked] = useState(() => hasSubmittedLead() || hasClickedGroupLink());
   const [showLeadModal, setShowLeadModal] = useState(false);
 
   // Number of items to show when content is locked (first screen)
