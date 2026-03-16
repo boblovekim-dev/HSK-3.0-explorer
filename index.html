@@ -1,48 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HSK 3.0 Explorer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'hsk-red': '#c41e3a',
-              'hsk-red-light': '#fee2e2',
-              'paper': '#f9f7f2',
-              'ink': '#2c3e50',
-            },
-            fontFamily: {
-              sans: ['Inter', 'system-ui', 'sans-serif'],
-              serif: ['Merriweather', 'serif'],
-            }
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HSK 3.0 Explorer - Master the New HSK (2026) | Thi HSK Mới</title>
+  <meta name="description"
+    content="Explore the new HSK 3.0 standards with our interactive platform. Master Chinese vocabulary, grammar, and Hanzi stroke order to easily boost your exact new HSK (2026) level. Luyện thi HSK mới 2026, học từ vựng và ngữ pháp tiếng Trung." />
+  <meta name="keywords"
+    content="HSK 3.0, new HSK, new HSK (2026), new HSK standards, HSK 3.0 vocabulary, học tiếng Trung, thi HSK mới, từ vựng HSK 3.0, luyện thi HSK, learn Chinese online, Chinese proficiency test, Hanzi stroke order, HSK preparation, learn Mandarin" />
+  <meta property="og:title" content="HSK 3.0 Explorer - Master the New HSK (2026) | Thi HSK Mới" />
+  <meta property="og:description"
+    content="Explore the new HSK 3.0 standards with our interactive platform. Luyện thi HSK mới 2026, học từ vựng và ngữ pháp tiếng Trung." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" href="/assets/app-logo.png" />
+  <link rel="apple-touch-icon" href="/assets/app-logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'hsk-red': '#c41e3a',
+            'hsk-red-light': '#fee2e2',
+            'paper': '#f9f7f2',
+            'ink': '#2c3e50',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Merriweather', 'serif'],
           }
         }
       }
-    </script>
-    <style>
-      body {
-        background-color: #f9f7f2;
-      }
-      /* Custom Scrollbar for nicer aesthetics */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #f1f1f1; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #c1c1c1; 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8; 
-      }
-    </style>
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f9f7f2;
+    }
+
+    /* Custom Scrollbar for nicer aesthetics */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -56,8 +71,10 @@
 </script>
 
 </head>
-  <body>
-    <div id="root"></div>
+
+<body>
+  <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

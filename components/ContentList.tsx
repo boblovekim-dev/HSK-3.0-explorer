@@ -7,7 +7,6 @@ import { Pagination } from './Pagination';
 import { ttsService } from '../services/ttsService';
 import { TranslatableText } from './TranslatableText';
 import { ContentLockOverlay } from './ContentLockOverlay';
-import { LeadCaptureModal } from './LeadCaptureModal';
 import { hasSubmittedLead, hasClickedGroupLink } from '../services/leadService';
 
 interface Props {
@@ -129,8 +128,7 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
   const [charType, setCharType] = useState<'reading' | 'writing'>('reading');
 
   // Lead capture & content lock state
-  const [isContentUnlocked, setIsContentUnlocked] = useState(() => hasSubmittedLead() || hasClickedGroupLink());
-  const [showLeadModal, setShowLeadModal] = useState(false);
+  const [isContentUnlocked] = useState(() => hasSubmittedLead() || hasClickedGroupLink());
 
   // Number of items to show when content is locked (first screen)
   const LOCKED_ITEMS_COUNT = 5;
@@ -1223,21 +1221,11 @@ export const ContentList: React.FC<Props> = ({ data, category, level, isLoading,
 
         {/* Content Lock Overlay */}
         {!isContentUnlocked && data && data.items.length > LOCKED_ITEMS_COUNT && (
-          <div className="mt-6">
-            <ContentLockOverlay onUnlockClick={() => setShowLeadModal(true)} />
+          <div className="mt-6 mb-24 md:mb-28">
+            <ContentLockOverlay />
           </div>
         )}
       </div>
-
-      {/* Lead Capture Modal */}
-      <LeadCaptureModal
-        isOpen={showLeadModal}
-        onClose={() => setShowLeadModal(false)}
-        onSuccess={() => {
-          setIsContentUnlocked(true);
-          setShowLeadModal(false);
-        }}
-      />
     </div>
   );
 };

@@ -100,7 +100,20 @@ CREATE TABLE download_clicks (
   clicked_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 );
 
+-- 行为点击统计表 (New table for general actions)
+CREATE TABLE action_clicks (
+  id BIGSERIAL PRIMARY KEY,
+  ip_address VARCHAR(45) NOT NULL,
+  country VARCHAR(100),
+  action_type VARCHAR(50) NOT NULL, -- 'join_group_link', 'join_group_button', 'copy_group_link'
+  clicked_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
+);
+
 -- 启用RLS
 ALTER TABLE download_clicks ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow anonymous inserts" ON download_clicks FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous select" ON download_clicks FOR SELECT USING (true);
+
+ALTER TABLE action_clicks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow anonymous inserts" ON action_clicks FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow anonymous select" ON action_clicks FOR SELECT USING (true);

@@ -189,6 +189,23 @@ export async function trackDownloadClick(platform: 'ios' | 'android' | 'qr' | 'z
 }
 
 /**
+ * 记录特定行为点击
+ * - 记录动作类型 (join_group_link, join_group_button, copy_group_link)
+ */
+export async function trackActionClick(actionType: 'join_group_link' | 'join_group_button' | 'copy_group_link'): Promise<void> {
+    try {
+        const { ip, country } = await getIpInfo();
+        await supabase.from('action_clicks').insert({
+            ip_address: ip,
+            country: country,
+            action_type: actionType
+        });
+    } catch (error) {
+        console.warn('Analytics trackActionClick error:', error);
+    }
+}
+
+/**
  * 获取统计摘要（可用于管理后台）
  */
 export async function getAnalyticsSummary() {
@@ -220,6 +237,11 @@ export async function getAnalyticsSummary() {
             .from('language_selections')
             .select('language');
 
+        // 行为点击统计
+        const { data: actionClicks } = await supabase
+            .from('action_clicks')
+            .select('action_type');
+
         return {
             todayVisitCount,
             todayUniqueVisitors,
@@ -233,6 +255,12 @@ export async function getAnalyticsSummary() {
                         if (r.error) return 0;
                         return new Set(r.data.map(d => d.ip_address)).size;
                     })
+            },
+            actionStats: {
+                joinLinkClicks: actionClicks?.filter(a => a.action_type === 'join_group_link').length || 0,
+                joinButtonClicks: actionClicks?.filter(a => a.action_type === 'join_group_button').length || 0,
+                copyLinkClicks: actionClicks?.filter(a => a.action_type === 'copy_group_link').length || 0,
+                totalActions: actionClicks?.length || 0
             }
         };
     } catch (error) {
